@@ -16,8 +16,10 @@ func Summary(r *Report) string {
 	w("")
 	if r.CAT.Responding {
 		w("Radio: %s, firmware %s, on %s at %d baud.", r.CAT.Identity.Model, r.CAT.Identity.Firmware, r.Serial.Port, r.Serial.Baud)
+	} else if r.Serial.Port == "" {
+		w("Radio: no serial port found. %s", r.Serial.Error)
 	} else {
-		w("Radio: not answering CAT on %q.", r.Serial.Port)
+		w("Radio: not answering CAT on %s.", r.Serial.Port)
 	}
 	if d := r.Audio.Radio; d != nil {
 		w("Audio: %q (%s), %g Hz, %d channel(s).", d.Name, r.Audio.MatchReason, d.NominalRate, d.InputChannels)

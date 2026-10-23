@@ -1,0 +1,115 @@
+[
+  {
+    "file": "if-carrier-noise.wav",
+    "description": "carrier 1.5 kHz above the IF centre at −20 dBFS in −60 dBFS noise",
+    "config": {
+      "SampleRate": 48000,
+      "IFCentreHz": 12000,
+      "Signals": [
+        {
+          "kind": "noise",
+          "freq_hz": 0,
+          "level_dbfs": -60
+        },
+        {
+          "kind": "carrier",
+          "freq_hz": 1500,
+          "level_dbfs": -20
+        }
+      ],
+      "Invert": false,
+      "FreqOffsetHz": 0,
+      "MirrorDB": 0,
+      "ClipLevel": 0,
+      "Seed": 1
+    },
+    "seconds": 1
+  },
+  {
+    "file": "if-inverted.wav",
+    "description": "as if-carrier-noise but spectrally inverted (carrier 1.5 kHz below the centre)",
+    "config": {
+      "SampleRate": 48000,
+      "IFCentreHz": 12000,
+      "Signals": [
+        {
+          "kind": "noise",
+          "freq_hz": 0,
+          "level_dbfs": -60
+        },
+        {
+          "kind": "carrier",
+          "freq_hz": 1500,
+          "level_dbfs": -20
+        }
+      ],
+      "Invert": true,
+      "FreqOffsetHz": 0,
+      "MirrorDB": 0,
+      "ClipLevel": 0,
+      "Seed": 1
+    },
+    "seconds": 1
+  },
+  {
+    "file": "if-mix.wav",
+    "description": "USB two-tone (suppressed carrier −3 kHz), AM with 1 kHz tone (+4 kHz), Morse 'CQ TEST' (+1 kHz), noise",
+    "config": {
+      "SampleRate": 48000,
+      "IFCentreHz": 12000,
+      "Signals": [
+        {
+          "kind": "noise",
+          "freq_hz": 0,
+          "level_dbfs": -60
+        },
+        {
+          "kind": "two-tone",
+          "freq_hz": -3000,
+          "level_dbfs": -30
+        },
+        {
+          "kind": "am",
+          "freq_hz": 4000,
+          "level_dbfs": -25,
+          "mod_hz": 1000,
+          "mod_depth": 0.5
+        },
+        {
+          "kind": "morse",
+          "freq_hz": 1000,
+          "level_dbfs": -28,
+          "text": "CQ TEST",
+          "wpm": 25
+        }
+      ],
+      "Invert": false,
+      "FreqOffsetHz": 0,
+      "MirrorDB": 0,
+      "ClipLevel": 0,
+      "Seed": 2
+    },
+    "seconds": 1
+  },
+  {
+    "file": "if-mirror-clip.wav",
+    "description": "carrier +2.5 kHz at −3 dBFS with a −40 dB mirror image, clipped at 0.6",
+    "config": {
+      "SampleRate": 48000,
+      "IFCentreHz": 12000,
+      "Signals": [
+        {
+          "kind": "carrier",
+          "freq_hz": 2500,
+          "level_dbfs": -3
+        }
+      ],
+      "Invert": false,
+      "FreqOffsetHz": 0,
+      "MirrorDB": -40,
+      "ClipLevel": 0.6,
+      "Seed": 3
+    },
+    "seconds": 1
+  }
+]

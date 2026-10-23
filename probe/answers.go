@@ -147,7 +147,9 @@ func (p *prober) finish() {
 	}
 
 	// Q06: IO 0.
-	if io, ok := r.CAT.State["io"].(string); ok && io == radio.IOAF.String() {
+	if io, ok := r.CAT.State["io"].(string); !ok {
+		unknown("Q06", "IO was not read")
+	} else if io == radio.IOAF.String() {
 		if a := p.recording("as-found"); a != nil {
 			switch {
 			case a.Analysis.Silent:
@@ -161,7 +163,7 @@ func (p *prober) finish() {
 			unknown("Q06", "no as-found recording")
 		}
 	} else {
-		unknown("Q06", "IO was not 0 when the probe started; set Menu 102 to AF and run read-only again")
+		unknown("Q06", "IO was "+io+" when the probe started; set Menu 102 to AF and run read-only again")
 	}
 
 	// Q07: IF centre and width.
@@ -337,6 +339,8 @@ func (p *prober) finish() {
 	} else {
 		unknown("Q19", "needs IF recordings")
 	}
+
+	defer slices.SortStableFunc(p.rep.Answers, func(a, b Answer) int { return strings.Compare(a.ID, b.ID) })
 
 	// Q20: foreign traffic.
 	h := r.CAT.Hygiene
