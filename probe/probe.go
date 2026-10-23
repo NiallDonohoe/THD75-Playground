@@ -42,7 +42,7 @@ type Options struct {
 
 	StorePath       string // snapshot file; default under the user config dir
 	RestorePrevious bool   // restore a dirty snapshot from an earlier session first
-	RestoreTimeout  time.Duration
+	RestoreTimeout  time.Duration // after an interrupt; default 2 s (a normal finish allows 10 s)
 
 	Notes  map[string]string
 	Prompt Prompter // nil: non-interactive
@@ -562,7 +562,13 @@ func (p *prober) writeSequence(ctx context.Context) (err error) {
 	p.step("snapshot", nil, "saved to "+p.o.StorePath)
 
 	defer func() {
-		rctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), p.o.RestoreTimeout)
+		// Interrupted: the spec's 2 s cap. A normal finish has no one
+		// waiting, so give a slow radio room rather than leave it dirty.
+		timeout := 10 * time.Second
+		if ctx.Err() != nil {
+			timeout = p.o.RestoreTimeout
+		}
+		rctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), timeout)
 		defer cancel()
 		rr, rerr := p.guard.Restore(rctx)
 		p.rep.Restore = &rr
