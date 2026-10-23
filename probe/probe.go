@@ -40,8 +40,8 @@ type Options struct {
 	RefCarrierHz int64   // known carrier near the dial, for Δ_mode
 	TuneStepHz   int64   // retune for the inversion test; default 1000
 
-	StorePath       string // snapshot file; default under the user config dir
-	RestorePrevious bool   // restore a dirty snapshot from an earlier session first
+	StorePath       string        // snapshot file; default under the user config dir
+	RestorePrevious bool          // restore a dirty snapshot from an earlier session first
 	RestoreTimeout  time.Duration // after an interrupt; default 2 s (a normal finish allows 10 s)
 
 	Notes  map[string]string
