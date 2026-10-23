@@ -167,7 +167,7 @@ func (s *syntheticSource) retune() {
 		// Something audio-like: a 1 kHz tone, as a detector might produce.
 		sigs = []dsp.Signal{{Kind: dsp.KindCarrier, FreqHz: 1000 - s.centre, LevelDBFS: -20}}
 	case st.Output != "IF" || !ifWorks(sc, st.Mode):
-		sigs = []dsp.Signal{{Kind: dsp.KindCarrier, FreqHz: 0, LevelDBFS: -200}}
+		sigs = nil // exact silence
 	default:
 		// The synth's inversion conjugates the whole baseband, so modulation
 		// sidebands flip too, as they would in an inverted IF.

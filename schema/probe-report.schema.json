@@ -1,0 +1,359 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://d75scope.local/schema/probe-report.schema.json",
+  "title": "D75 probe report",
+  "description": "probe-report.json written by d75probe (schema_version 1). Question IDs refer to HARDWARE_QUESTIONS.md.",
+  "type": "object",
+  "required": ["schema_version", "tool", "started", "finished", "mode", "mock", "settings", "notes", "audio", "serial", "cat", "steps", "recordings", "inversion", "offsets", "answers", "warnings", "errors", "transcript"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": 1 },
+    "tool": {
+      "type": "object",
+      "required": ["name", "version", "go_version", "os", "arch"],
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "go_version": { "type": "string" },
+        "os": { "type": "string" },
+        "arch": { "type": "string" }
+      }
+    },
+    "started": { "type": "string", "format": "date-time" },
+    "finished": { "type": "string", "format": "date-time" },
+    "mode": { "enum": ["read-only", "allow-writes"] },
+    "mock": { "type": "boolean", "description": "true when run against the fake radio and synthetic IF" },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "record_seconds": { "type": "number" },
+        "port": { "type": "string" },
+        "baud": { "type": "integer" },
+        "audio_device": { "type": "string" },
+        "if_centre_hz": { "type": "number" },
+        "ref_carrier_hz": { "type": "integer" },
+        "tune_step_hz": { "type": "integer" },
+        "interactive": { "type": "boolean" },
+        "restore_previous": { "type": "boolean" }
+      }
+    },
+    "notes": {
+      "type": "object",
+      "description": "Owner observations: speaker_during_if, band_a_changed, menu_170_cw_pitch, menu_91a, and any --note key=value",
+      "additionalProperties": { "type": "string" }
+    },
+    "audio": {
+      "type": "object",
+      "required": ["devices"],
+      "properties": {
+        "devices": { "type": "array", "items": { "$ref": "#/$defs/device" } },
+        "radio": { "$ref": "#/$defs/device" },
+        "match_reason": { "type": "string" },
+        "capture_format": { "$ref": "#/$defs/format" },
+        "error": { "type": "string" }
+      }
+    },
+    "serial": {
+      "type": "object",
+      "required": ["ports", "exclusive_lock"],
+      "properties": {
+        "ports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path"],
+            "properties": {
+              "path": { "type": "string" },
+              "usb": {
+                "type": "object",
+                "properties": {
+                  "vendor_id": { "type": "integer" },
+                  "product_id": { "type": "integer" },
+                  "vendor": { "type": "string" },
+                  "product": { "type": "string" },
+                  "serial": { "type": "string" },
+                  "ports": { "type": "array", "items": { "type": "string" } }
+                }
+              }
+            }
+          }
+        },
+        "port": { "type": "string" },
+        "match": { "type": "string" },
+        "baud": { "type": "integer" },
+        "exclusive_lock": { "type": "string", "description": "verified | not enforced | untested: <reason>" },
+        "error": { "type": "string" }
+      }
+    },
+    "cat": {
+      "type": "object",
+      "required": ["responding", "identity", "reads", "hygiene"],
+      "properties": {
+        "responding": { "type": "boolean" },
+        "identity": {
+          "type": "object",
+          "properties": { "model": { "type": "string" }, "firmware": { "type": "string" }, "usb_serial": { "type": "string" } }
+        },
+        "reads": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["command", "elapsed_ms"],
+            "properties": {
+              "command": { "type": "string" },
+              "reply": { "type": "string", "description": "raw reply text, or ? / N" },
+              "error": { "type": "string" },
+              "elapsed_ms": { "type": "number" }
+            }
+          }
+        },
+        "hygiene": {
+          "type": "object",
+          "properties": {
+            "nmea_lines": { "type": "integer" },
+            "aprs_lines": { "type": "integer" },
+            "kiss_frames": { "type": "integer" },
+            "unsolicited_lines": { "type": "integer" },
+            "unparsable_lines": { "type": "integer" }
+          }
+        },
+        "foreign_samples": { "type": "array", "items": { "type": "string" } },
+        "state": { "type": "object", "description": "values decoded from the reads (frequency_hz, mode, io, fine_tune, fine_step, auto_info, squelch_open, filter_*_hz, vfo)" }
+      }
+    },
+    "previous_session": {
+      "type": "object",
+      "properties": {
+        "snapshot": { "$ref": "#/$defs/snapshot" },
+        "restored": { "type": "boolean" },
+        "restore": { "$ref": "#/$defs/restore" },
+        "error": { "type": "string" }
+      }
+    },
+    "snapshot": { "$ref": "#/$defs/snapshot" },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["t", "action", "result"],
+        "properties": {
+          "t": { "type": "string", "format": "date-time" },
+          "action": { "type": "string" },
+          "result": { "type": "string" },
+          "error": { "type": "string" }
+        }
+      }
+    },
+    "recordings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "file", "purpose", "format", "seconds", "analysis"],
+        "properties": {
+          "name": { "type": "string" },
+          "file": { "type": "string" },
+          "purpose": { "type": "string" },
+          "mode": { "type": "string" },
+          "output": { "type": "string" },
+          "dial_hz": { "type": "integer" },
+          "dial_after_hz": { "type": "integer" },
+          "squelch_open": { "type": "boolean" },
+          "started": { "type": "string", "format": "date-time" },
+          "seconds": { "type": "number" },
+          "format": { "$ref": "#/$defs/format" },
+          "overruns": { "type": "integer" },
+          "analysis": {
+            "type": "object",
+            "properties": {
+              "levels": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "peak_dbfs": { "type": "number" },
+                    "rms_dbfs": { "type": "number" },
+                    "dc_offset": { "type": "number" },
+                    "zero_fraction": { "type": "number" },
+                    "clipped_count": { "type": "integer" }
+                  }
+                }
+              },
+              "channels": {
+                "type": "object",
+                "properties": { "identical": { "type": "boolean" }, "max_abs_diff": { "type": "number" }, "correlation": { "type": "number" } }
+              },
+              "silent": { "type": "boolean" },
+              "spectrum_bin_hz": { "type": "number" },
+              "noise_floor_db": { "type": "number" },
+              "passband": {
+                "type": "object",
+                "properties": {
+                  "reference_db": { "type": "number" },
+                  "low_6db_hz": { "type": "number" },
+                  "high_6db_hz": { "type": "number" },
+                  "low_20db_hz": { "type": "number" },
+                  "high_20db_hz": { "type": "number" },
+                  "centre_hz": { "type": "number" },
+                  "width_hz": { "type": "number" },
+                  "shaped": { "type": "boolean" }
+                }
+              },
+              "low_band_fraction": { "type": "number" },
+              "peaks": {
+                "type": ["array", "null"],
+                "items": {
+                  "type": "object",
+                  "properties": { "freq_hz": { "type": "number" }, "level_db": { "type": "number" }, "prominence_db": { "type": "number" } }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "inversion": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["mode", "s", "verdict"],
+        "properties": {
+          "mode": { "type": "string" },
+          "base": { "type": "string" },
+          "up": { "type": "string" },
+          "dial_step_hz": { "type": "integer" },
+          "measured_shift_hz": { "type": "number" },
+          "score": { "type": "number" },
+          "energy": { "type": "number" },
+          "s": { "enum": [-1, 0, 1], "description": "+1 not inverted, -1 inverted, 0 not measurable" },
+          "verdict": { "type": "string" }
+        }
+      }
+    },
+    "offsets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["mode", "delta_hz"],
+        "properties": {
+          "mode": { "type": "string" },
+          "recording": { "type": "string" },
+          "ref_carrier_hz": { "type": "integer" },
+          "dial_hz": { "type": "integer" },
+          "peak_if_hz": { "type": "number" },
+          "fbb_hz": { "type": "number" },
+          "if_centre_hz": { "type": "number" },
+          "s": { "type": "integer" },
+          "delta_hz": { "type": "number", "description": "Δ_mode in f_RF = f_dial + Δ_mode + s·f_bb" },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "ai_test": {
+      "type": "object",
+      "properties": { "ran": { "type": "boolean" }, "lines": { "type": "array", "items": { "type": "string" } }, "note": { "type": "string" } }
+    },
+    "restore": { "$ref": "#/$defs/restore" },
+    "answers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "question", "answer", "basis"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^Q[0-9]{2}$" },
+          "question": { "type": "string" },
+          "answer": { "type": "string" },
+          "basis": { "enum": ["measured", "inferred", "owner", "unknown"] },
+          "evidence": { "type": "string" }
+        }
+      }
+    },
+    "warnings": { "type": "array", "items": { "type": "string" } },
+    "errors": { "type": "array", "items": { "type": "string" } },
+    "transcript": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["t", "dir", "text"],
+        "properties": {
+          "t": { "type": "string", "format": "date-time" },
+          "dir": { "enum": ["tx", "rx"] },
+          "text": { "type": "string" },
+          "kind": { "enum": ["reply", "unsolicited", "nmea", "aprs", "kiss"] }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "format": {
+      "type": "object",
+      "required": ["sample_rate", "channels"],
+      "properties": { "sample_rate": { "type": "number" }, "channels": { "type": "integer" } }
+    },
+    "device": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "manufacturer": { "type": "string" },
+        "model_uid": { "type": "string" },
+        "transport": { "type": "string" },
+        "input_channels": { "type": "integer" },
+        "output_channels": { "type": "integer" },
+        "nominal_rate": { "type": "number" },
+        "available_rates": { "type": "array", "items": { "type": "object", "properties": { "min": { "type": "number" }, "max": { "type": "number" } } } },
+        "input_formats": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "sample_rate": { "type": "number" },
+              "channels": { "type": "integer" },
+              "bits_per_channel": { "type": "integer" },
+              "float": { "type": "boolean" },
+              "format_id": { "type": "string" }
+            }
+          }
+        },
+        "default_input": { "type": "boolean" }
+      }
+    },
+    "snapshot": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "integer" },
+        "taken": { "type": "string" },
+        "updated": { "type": "string" },
+        "dirty": { "type": "boolean" },
+        "radio": { "type": "object" },
+        "port": { "type": "string" },
+        "original": { "type": "object", "additionalProperties": { "type": "string" } },
+        "written": { "type": "object", "additionalProperties": { "type": "string" } },
+        "order": { "type": ["array", "null"], "items": { "enum": ["FQ", "MD", "IO", "FT", "FS", "AI"] } },
+        "vfo": { "type": ["array", "null"], "items": { "type": "string" } },
+        "filters": { "type": ["object", "null"] }
+      }
+    },
+    "restore": {
+      "type": "object",
+      "properties": {
+        "clean": { "type": "boolean" },
+        "fields": {
+          "type": ["array", "null"],
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": { "type": "string" },
+              "original": { "type": "string" },
+              "written": { "type": "string" },
+              "found": { "type": "string" },
+              "final": { "type": "string" },
+              "outcome": { "enum": ["restored", "unchanged", "owner-changed", "failed"] },
+              "error": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

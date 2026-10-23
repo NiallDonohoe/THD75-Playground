@@ -205,8 +205,8 @@ func TestUnsolicitedAIRouting(t *testing.T) {
 func TestForeignTrafficHoldsWrites(t *testing.T) {
 	for name, inject := range map[string][]byte{
 		"nmea": []byte("$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A\r\n"),
-		"aprs": []byte("EI6HIB-7>APK005,WIDE1-1:!5320.00N/00615.00W>\r"),
-		"kiss": {0xC0, 0x00, 'E', 'I', '6', 0x0D, 'X', 0xC0},
+		"aprs": []byte("N0CALL-7>APK005,WIDE1-1:!5320.00N/00615.00W>\r"),
+		"kiss": {0xC0, 0x00, 'N', '0', 'C', 0x0D, 'X', 0xC0},
 	} {
 		t.Run(name, func(t *testing.T) {
 			fake := NewFakeD75()
