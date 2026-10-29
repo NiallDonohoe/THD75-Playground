@@ -1,5 +1,17 @@
 # Changelog
 
+## A0 — APRS packet core (2026-10-29)
+
+- `aprs`: TNC2 text and AX.25 UI frames (both ways), the q construct and
+  digipeaters used. Decodes plain positions (with ambiguity), compressed
+  positions, Mic-E, objects, items, status, third-party packets, and
+  messages, acks and rejects (including reply-acks). Weather, telemetry and
+  other types come back as unknown, with the raw field kept. Encodes
+  messages, acks, rejects and plain position reports; resolves APRS
+  timestamps. Fuzz tests for the TNC2 and AX.25 parsers.
+- Docs: d75aprs spec (docs/APRS.md), decisions 0004–0006, KISS questions
+  K01–K08 in HARDWARE_QUESTIONS.md.
+
 ## M0 — probe CLI (2026-10-23, waiting for the hardware run)
 
 - `d75probe`: read-only survey of the radio (audio devices and formats, USB

@@ -24,7 +24,7 @@ same time, because d75aprs needs the TNC in KISS mode on the USB port.
 
 | Milestone | State |
 | --- | --- |
-| A0 Packet core (`aprs`) | In progress. |
+| A0 Packet core (`aprs`) | Done: tests and fuzzing green. No hardware check needed. |
 | A1 Receive | Not started. |
 | A2 Page and map | Not started. |
 | A3 Messaging and beacons over IP | Not started. |
