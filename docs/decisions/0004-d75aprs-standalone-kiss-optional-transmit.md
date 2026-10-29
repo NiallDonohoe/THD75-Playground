@@ -27,5 +27,5 @@ The owner chose:
 
 Consequences: the radio setup differs between the two programs, and the
 README says how to switch. New radio questions K01–K08 go into
-HARDWARE_QUESTIONS.md and are answered by the A1 and A4 checklists. Nothing
+HARDWARE_QUESTIONS.md and are answered by the A2 and A4 checklists. Nothing
 in d75aprs depends on an answer before its checklist has confirmed it.

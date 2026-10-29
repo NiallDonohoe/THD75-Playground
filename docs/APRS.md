@@ -159,51 +159,63 @@ Further rules:
 - **Without internet**, markers draw over whatever tiles are cached, on a
   latitude–longitude grid.
 - **Alongside the map**: a station list that can be filtered by source.
-- **Open: APRS symbols.** Use simple markers with the symbol code at first.
-  An icon set needs its licence checked before it is embedded.
+- **APRS symbols** are drawn as emoji for the common symbols, and as the
+  symbol character in a disc for the rest, so no icon set has to be
+  embedded and licensed.
 
 ## Packages
 
 | Package | Role |
 | --- | --- |
 | `aprs` | Packet core: TNC2 text, AX.25 frames; decoding positions (plain, compressed, Mic-E), objects, items, messages, status and third-party packets; encoding messages, acks and positions. Pure Go, no I/O. |
-| `kiss` | KISS framing. A receive-only `Reader`, and a `Transmitter` that exists only when RF transmit is on and enforces the RF limits. |
-| `aprsis` | APRS-IS client. |
-| `aprsfi` | aprs.fi client with its cache. |
-| `aprsapp` | Station store (deduplication, source tags, persistence), message engine, beacon scheduler. |
-| `aprsweb` | HTTP server: embedded page, server-sent events, JSON POSTs, tile proxy. |
-| `web/aprs` | The page, in plain JavaScript. |
+| `aprsapp` | Store of packets, stations and messages: deduplication across sources, source tags, the event stream. Later: persistence, message engine, beacon scheduler. |
+| `aprsfi` | aprs.fi client with its cache and backoff. |
+| `tiles` | Tile proxy with a disk cache, within the OpenStreetMap tile policy. |
+| `aprsweb` | HTTP server: localhost guard, embedded page, server-sent events, lookups, tiles. The wire format is in [APRS_PROTOCOL.md](APRS_PROTOCOL.md). |
+| `demo` | Made-up RF, APRS-IS and aprs.fi traffic for `--demo`. |
+| `web/aprs` | The page, in plain JavaScript; `geo.js` is tested with Node's built-in runner. |
+| `kiss` | (A2) KISS framing. A receive-only `Reader`, and a `Transmitter` that exists only when RF transmit is on and enforces the RF limits. |
+| `aprsis` | (A2) APRS-IS client. |
 | `cmd/d75aprs` | The program. |
 
 The serial port and USB discovery are reused from `radio`; CAT is not used.
 
 ## Testing without the radio or the network
 
-- **Fake TNC**: a KISS peer on a pseudo-terminal. It injects frames and
+- **`--demo`** runs the page on made-up traffic. Every callsign starts with
+  Q, which no country issues. RF packets pass through AX.25 encoding and
+  decoding, as KISS frames would. The traffic covers every source-tag case:
+  - RF direct and via a digipeater
+  - RF + IP through an IGate
+  - IP from an internet client
+  - IP igated far away
+  - third-party on RF
+  - Mic-E and compressed positions, objects and items
+  - messages, bulletins, telemetry, and a malformed packet
+- **Fake TNC** (A2): a KISS peer on a pseudo-terminal. It injects frames and
   records every byte written. With transmit off it must receive zero bytes.
-- **Fake servers**: APRS-IS on a local TCP port, aprs.fi and the tile server
-  through `httptest`.
-- **Message and beacon timing** is tested on a fake clock: retries, acks and
-  the RF limits.
-- **Packet corpus**: packets in `testdata/aprs/`, plus fuzzing of everything
-  that parses radio or network input.
+- **Fake servers**: APRS-IS on a local TCP port (A2); aprs.fi and the tile
+  server through `httptest`.
+- **Message and beacon timing** (A3, A4) is tested on a fake clock: retries,
+  acks and the RF limits.
+- **Fuzzing** of everything that parses radio or network input.
 
 ## Milestones
 
-Each milestone ends with green tests, a changelog entry and, where the radio
-is involved, a hardware checklist. They do not wait for d75scope's
-milestones.
+Each milestone ends with green tests, a changelog entry and an owner check.
+They do not wait for d75scope's milestones. On 29 Oct 2026 the owner asked
+for the page first, so A1 and A2 swapped places: the page is built and
+tested on made-up traffic before the radio is connected.
 
-1. **A0 — Packet core.** The `aprs` package. Done when its decode, encode and
-   round-trip tests pass and fuzzing finds no panics.
-2. **A1 — Receive.** KISS reader, APRS-IS client (read-only login), station
-   store with tags and deduplication, and `d75aprs --listen`, which prints
-   every packet with its tag. Done when the owner has run it in KISS mode
-   (checklist A1, answering K01–K04, K06 and K07) and sees RF and IP
-   packets tagged correctly.
-3. **A2 — Page and map.** Server, events, map, station list and aprs.fi
-   lookups, plus a `--demo` mode on the fakes. Done when the page works in
-   Chrome in demo mode and the owner checks it against the live feeds.
+1. **A0 — Packet core.** Done.
+2. **A1 — Page and map, in demo mode.** Store, server, events, map, station
+   list, packet log, messages (read-only), aprs.fi lookups, tile proxy and
+   `--demo`. Done when the owner has worked through
+   [CHECKLIST_A1.md](CHECKLIST_A1.md) in Chrome.
+3. **A2 — Receive.** KISS reader, APRS-IS client (read-only login), the store
+   saved on disk, and `d75aprs` running live. Done when the owner has run it
+   in KISS mode (checklist A2, answering K01–K04, K06 and K07) and sees RF
+   and IP packets tagged correctly on the page.
 4. **A3 — Messaging and beacons over IP.** Passcode, messages, acks, retries
    and IP beacons. Done when the owner exchanges messages with another
    station over IP and the beacon shows on aprs.fi.

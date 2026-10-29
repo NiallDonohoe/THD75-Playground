@@ -13,6 +13,15 @@ waterfall program (`d75scope`) starts in M1. See [docs/PLAN.md](docs/PLAN.md).
 A second, separate program, `d75aprs`, is in progress: an APRS client using
 the radio's KISS TNC, with a map, messaging and beacons. Unlike d75scope it
 can transmit, but only when that is switched on. See [docs/APRS.md](docs/APRS.md).
+So far its page runs on made-up traffic:
+
+```sh
+make build
+./bin/d75aprs --demo --call YOURCALL-7 --lat 53.35 --lon -6.26
+# then open http://127.0.0.1:8076/ in Chrome
+```
+
+What to check is in [docs/CHECKLIST_A1.md](docs/CHECKLIST_A1.md).
 
 ## Requirements
 
