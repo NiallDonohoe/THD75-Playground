@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>d75aprs</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <header class="bar">
+    <div class="brand">d75aprs <span id="mycall" class="call"></span></div>
+    <span id="demo-badge" class="badge demo" hidden title="Fake RF, APRS-IS and aprs.fi traffic">Demo</span>
+    <span id="tx-badge" class="badge tx-off">RF transmit off</span>
+    <div class="sources">
+      <span class="src" data-src="rf"><span class="dot"></span>RF <span class="state"></span></span>
+      <span class="src" data-src="is"><span class="dot"></span>APRS-IS <span class="state"></span></span>
+      <span class="src" data-src="aprsfi"><span class="dot"></span>aprs.fi <span class="state"></span></span>
+    </div>
+    <span id="conn" class="conn" role="status">connecting…</span>
+  </header>
+
+  <main>
+    <section class="map-wrap" aria-label="Map">
+      <canvas id="map" tabindex="0" aria-label="Map of stations. Drag or use the arrow keys to pan, + and − to zoom."></canvas>
+      <div class="map-controls">
+        <button id="zoom-in" aria-label="Zoom in">+</button>
+        <button id="zoom-out" aria-label="Zoom out">−</button>
+        <button id="centre-me" aria-label="Centre on my station" title="Centre on my station">◎</button>
+      </div>
+      <div class="legend" aria-label="Marker rings">
+        <span><i class="ring rf"></i>RF</span>
+        <span><i class="ring is"></i>IP</span>
+        <span><i class="ring both"></i>RF+IP</span>
+        <span><i class="ring fi"></i>aprs.fi</span>
+      </div>
+      <p id="tiles-off" class="tiles-off" hidden>Map tiles are off: stations are drawn on a latitude–longitude grid.</p>
+      <div class="attribution">
+        <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a><span id="aprsfi-credit" hidden> · Data from <a href="https://aprs.fi/" target="_blank" rel="noopener noreferrer">aprs.fi</a></span>
+      </div>
+      <div id="tooltip" class="tooltip" hidden></div>
+    </section>
+
+    <aside class="side">
+      <nav class="tabs" role="tablist">
+        <button id="tabbtn-stations" role="tab">Stations <span id="count-stations" class="count"></span></button>
+        <button id="tabbtn-packets" role="tab">Packets</button>
+        <button id="tabbtn-messages" role="tab">Messages <span id="count-messages" class="count unread" hidden></span></button>
+      </nav>
+      <div class="filters" role="group" aria-label="Show by source">
+        <button class="filter" data-filter="all">All</button>
+        <button class="filter" data-filter="rf">RF</button>
+        <button class="filter" data-filter="is">IP</button>
+        <button class="filter" data-filter="aprsfi">aprs.fi</button>
+      </div>
+
+      <section id="tab-stations" class="tab" role="tabpanel">
+        <div id="station-list-wrap">
+          <form id="lookup" class="lookup">
+            <input id="search" type="search" placeholder="Filter, or look up a callsign" autocomplete="off" spellcheck="false" aria-label="Filter stations or look up a callsign">
+            <button id="lookup-btn" type="submit">aprs.fi</button>
+          </form>
+          <p id="lookup-msg" class="lookup-msg" role="status"></p>
+          <ul id="station-list" class="list"></ul>
+          <p id="station-empty" class="empty" hidden>No stations match.</p>
+        </div>
+        <div id="station-detail" hidden>
+          <button id="back" class="link">← All stations</button>
+          <div id="station-detail-body"></div>
+        </div>
+      </section>
+
+      <section id="tab-packets" class="tab" role="tabpanel" hidden>
+        <div class="toolbar"><button id="pause">Pause</button></div>
+        <ol id="packet-list" class="packets"></ol>
+      </section>
+
+      <section id="tab-messages" class="tab" role="tabpanel" hidden>
+        <div id="threads"></div>
+        <p id="messages-empty" class="empty" hidden>No messages to you yet.</p>
+        <form class="compose" aria-describedby="compose-note">
+          <input type="text" placeholder="To" disabled aria-label="To">
+          <input type="text" placeholder="Message (67 characters)" maxlength="67" disabled aria-label="Message">
+          <button type="submit" disabled>Send</button>
+          <p id="compose-note" class="note">Sending arrives with milestone A3 (over APRS-IS) and A4 (over RF).</p>
+        </form>
+      </section>
+    </aside>
+  </main>
+</body>
+</html>

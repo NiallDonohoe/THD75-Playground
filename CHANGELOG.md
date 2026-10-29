@@ -1,5 +1,33 @@
 # Changelog
 
+## A1 — d75aprs page and map, demo mode (2026-10-29, waiting for the owner's check)
+
+- `d75aprs --demo`: a page on localhost with a map of stations, a station
+  list and detail, a packet log and messages. Every packet, station and
+  message is tagged RF, IP, RF+IP or aprs.fi, with a second line saying how
+  it travelled (direct, digipeaters, IGate, third-party gateway). Sending is
+  not built yet (A3, A4).
+- `aprsapp`: store of packets, stations and messages; merges a packet heard
+  on RF and APRS-IS within 30 s into one record with both sources; event
+  stream for the page that drops a slow page rather than waiting for it.
+- `aprsfi`: on-request lookups with a 5-minute cache, exponential backoff, a
+  descriptive User-Agent, and errors that never contain the API key.
+- `tiles`: OpenStreetMap tile proxy with a disk cache that honours the
+  server's cache headers, revalidates with ETags, serves stale tiles when the
+  server is down, and runs at most two downloads at once.
+- `aprsweb`: loopback-only server with Host, Sec-Fetch-Site and Origin checks
+  and a strict Content-Security-Policy; server-sent events; lookups. Wire
+  format in docs/APRS_PROTOCOL.md.
+- `demo`: made-up RF (through AX.25) and APRS-IS traffic covering every tag
+  case, and a fake aprs.fi used through the real client.
+- `web/aprs`: plain JavaScript page with our own canvas map (Web Mercator,
+  dark-mode tiles, tracks, ambiguity boxes, label collision), emoji APRS
+  symbols. Map maths tested with `node --test`.
+- `aprs`: Mic-E comments drop the leading radio-type byte ('>' or ']').
+- Milestones A1 (receive) and A2 (page) swapped at the owner's request.
+- Makefile: builds d75aprs; `make aprs-demo`; `make test` runs the Node
+  tests when Node is installed.
+
 ## A0 — APRS packet core (2026-10-29)
 
 - `aprs`: TNC2 text and AX.25 UI frames (both ways), the q construct and

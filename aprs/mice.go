@@ -100,7 +100,13 @@ func (d *Data) micE(dst, info string) error {
 
 	d.Kind = KindPosition
 	d.Position = &pos
-	d.Comment = pos.takeMicEAltitude(info[9:])
+	comment := pos.takeMicEAltitude(info[9:])
+	// A leading '>' or ']' names the radio type (Kenwood handheld or mobile),
+	// not part of the text.
+	if strings.HasPrefix(comment, ">") || strings.HasPrefix(comment, "]") {
+		comment = comment[1:]
+	}
+	d.Comment = comment
 	d.MicE = micEMessage(bits)
 	return nil
 }
