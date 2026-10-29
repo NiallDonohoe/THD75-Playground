@@ -44,6 +44,22 @@ Status key: **open** (not yet run on the radio) · **answered** · **partly**.
 | X03 | What does APRS output on the USB port look like (Menu 982)? | The session detects lines shaped like `CALL>PATH:…`. Unverified; confirm only if the owner ever routes APRS to USB. |
 | X04 | Is the IF before or after the radio's AGC? | Owner experiment in M2: watch the IF level while a strong signal fades in and out, with the radio's AGC fast vs. slow. |
 
+## d75aprs: the KISS TNC
+
+Questions for the APRS client ([docs/APRS.md](docs/APRS.md)). They are
+answered by owner checklists, not the probe: A1 (receive) and A4 (transmit).
+
+| ID | Question | Why it matters | How it is answered | Hypothesis | Answer | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| K01 | Does firmware 1.03 offer the KISS TNC on USB (Menu 983 = USB), and how is KISS mode entered and left by hand? | The whole receive path; the setup steps | Owner, A1 checklist | Yes, from the TNC menu or key, as on the D74 | | open |
+| K02 | In KISS mode, is the radio's own APRS off (display, auto-ack, beacons)? | Same SSID as the radio is safe only if the radio stops acking | Owner sends the radio a message from another station in KISS mode; watch for a second ack | Off | | open |
+| K03 | Does the KISS port echo frames the host sends? | Our own packets must not show up as heard on RF | A4 checklist: transmit one frame and log what comes back | No echo | | open |
+| K04 | Which band does the TNC use in KISS mode, and is 1200 or 9600 bps set on the radio? | Setup steps; the program cannot change either | Owner, A1 checklist | The data band (Menu 506), 1200 bps set in the TNC menu | | open |
+| K05 | With Menu 981 (GPS) also on USB, do NMEA sentences interleave with KISS frames? | A GPS position for beacons later | Later, when GPS is wanted | Yes, as text between KISS frames | | open |
+| K06 | Does the TNC send only data frames on KISS port 0? | The reader's filtering | A1: log every KISS command byte seen | Only `0x00` | | open |
+| K07 | Does CAT stay silent in KISS mode, and does leaving KISS mode by hand restore it cleanly? | Switching between d75aprs and d75scope | Owner, A1 checklist: run `d75probe --list` and a read-only probe after leaving KISS | Silent in KISS; clean afterwards | | open |
+| K08 | Does a KISS data frame transmit straight away on the data band, at the radio's power setting, after waiting for a clear channel? | Transmit behaviour and limits | Owner, A4 checklist, with a second receiver | Yes, with the TNC's own channel check | | open |
+
 ## Changes to the spec
 
 None yet: the probe has not run on the radio.

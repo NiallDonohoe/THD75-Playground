@@ -10,6 +10,10 @@ tested against a fake radio. Next it needs a run on the real radio
 ([docs/HARDWARE_CHECKLIST_M0.md](docs/HARDWARE_CHECKLIST_M0.md)). The
 waterfall program (`d75scope`) starts in M1. See [docs/PLAN.md](docs/PLAN.md).
 
+A second, separate program, `d75aprs`, is in progress: an APRS client using
+the radio's KISS TNC, with a map, messaging and beacons. Unlike d75scope it
+can transmit, but only when that is switched on. See [docs/APRS.md](docs/APRS.md).
+
 ## Requirements
 
 - An Apple Silicon Mac (Linux compiles but is untested), Go 1.27, and the
