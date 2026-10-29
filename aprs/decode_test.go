@@ -156,7 +156,7 @@ func TestMicE(t *testing.T) {
 		want      wantPos
 	}{
 		{"US2PUQ", "`|+XoZO>/\"4T}Hello", wantPos{lat: 53 + 20.51/60, lon: -(6 + 15.60/60), sym: "/>", hasCourse: true, course: 251, speed: 36, hasAlt: true, alt: 61, comment: "Hello", micE: "En Route"}},
-		{"US2PUQ-2", "`|+XoZO>/>\"4T}Hi", wantPos{lat: 53 + 20.51/60, lon: -(6 + 15.60/60), sym: "/>", hasCourse: true, course: 251, speed: 36, hasAlt: true, alt: 61, comment: ">Hi", micE: "En Route"}},
+		{"US2PUQ-2", "`|+XoZO>/>\"4T}Hi", wantPos{lat: 53 + 20.51/60, lon: -(6 + 15.60/60), sym: "/>", hasCourse: true, course: 251, speed: 36, hasAlt: true, alt: 61, comment: "Hi", micE: "En Route"}},
 		{"3351R0", "'O(Dl v-/", wantPos{lat: -(33 + 51.20/60), lon: 151 + 12.40/60, sym: "/-", hasCourse: true, course: 90, micE: "Emergency"}},
 		// Z in the 6th place is west and a blanked hundredths digit.
 		{"US2PUZ", "`|+XoZO>/", wantPos{lat: 53 + 20.55/60, lon: -(6 + 15.65/60), amb: 1, sym: "/>", hasCourse: true, course: 251, speed: 36, micE: "En Route"}},
