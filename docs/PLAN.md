@@ -14,6 +14,22 @@ are tracked in [../HARDWARE_QUESTIONS.md](../HARDWARE_QUESTIONS.md).
 | M4 Calibration and recording | Not started. |
 | M5 Polish and sharing | Not started. |
 
+## Second program: d75aprs
+
+An APRS client (map, messaging, beacons, aprs.fi lookups) agreed on
+2026-10-29. It is a separate program with its own spec and milestones A0–A4
+([APRS.md](APRS.md), decisions 0004–0006), and it does not wait for M1–M5.
+d75scope stays receive-only; the two programs never use the radio at the
+same time, because d75aprs needs the TNC in KISS mode on the USB port.
+
+| Milestone | State |
+| --- | --- |
+| A0 Packet core (`aprs`) | In progress. |
+| A1 Receive | Not started. |
+| A2 Page and map | Not started. |
+| A3 Messaging and beacons over IP | Not started. |
+| A4 RF transmit | Not started. |
+
 ## Module layout
 
 ```
