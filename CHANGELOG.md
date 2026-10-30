@@ -1,5 +1,27 @@
 # Changelog
 
+## F0 — d75ft8 decoder core (2026-10-30)
+
+- `ft8`: FT8 in pure Go. Packs and unpacks 77-bit messages (standard calls
+  with /R and /P, CQ with modifiers, grids, reports, RRR/RR73/73, hashed
+  calls resolved from calls heard in full, non-standard calls, free text,
+  telemetry, DXpedition; contest types shown by type). CRC-14, the
+  (174,91) LDPC code with sum-product BP, Gray mapping, Costas sync, GFSK
+  synthesis. Decoder: spectrogram Costas search, baseband fine sync, one-,
+  two- and three-symbol soft metrics, three passes with subtraction of what
+  was decoded. `To12k` converts 48 kHz (or any multiple of 12 kHz) audio.
+- Tests: LDPC table cross-check, CRC, BP, pack/unpack round trips,
+  synthetic slots (including overlapping signals and noise alone), and fuzz
+  tests of both parsers; the fuzzer found and fixed four packing edge cases
+  (3X and 3DA0 call forms, −00, a 12-bit hash collision). With ft8_lib's
+  seven recordings: 71 of WSJT-X's 80 decodes, no false decodes in 60 slots
+  of noise, about 70 ms a slot.
+- `dsp`: a DFT of any size (Bluestein over the radix-2 FFT).
+- `d75ft8 decode FILE.wav…` prints decodes as WSJT-X does; `d75ft8 encode`
+  writes a WAV of a message. `make test-ft8-reference` runs the recording
+  comparison.
+- Docs: d75ft8 spec (docs/FT8.md), decisions 0007–0008, questions F01–F05.
+
 ## A1 — d75aprs page and map, demo mode (2026-10-29, waiting for the owner's check)
 
 - `d75aprs --demo`: a page on localhost with a map of stations, a station

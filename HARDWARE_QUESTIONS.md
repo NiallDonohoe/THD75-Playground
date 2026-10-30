@@ -60,6 +60,20 @@ answered by owner checklists, not the probe: A2 (receive) and A4 (transmit).
 | K07 | Does CAT stay silent in KISS mode, and does leaving KISS mode by hand restore it cleanly? | Switching between d75aprs and d75scope | Owner, A2 checklist: run `d75probe --list` and a read-only probe after leaving KISS | Silent in KISS; clean afterwards | | open |
 | K08 | Does a KISS data frame transmit straight away on the data band, at the radio's power setting, after waiting for a clear channel? | Transmit behaviour and limits | Owner, A4 checklist, with a second receiver | Yes, with the TNC's own channel check | | open |
 
+## d75ft8: the AF output
+
+Questions for the FT8 decoder ([docs/FT8.md](docs/FT8.md)), answered by the
+owner's F2 checklist. Q01 (audio format) and Q06 (whether `IO 0` is AF)
+above apply as well.
+
+| ID | Question | Why it matters | How it is answered | Hypothesis | Answer | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| F01 | With Menu 102 = AF (`IO 0`), what does the USB audio carry: band B's demodulated audio, band A's, or both mixed as on the speaker? | Band A could add audio, or carry the wrong band | F2: band B on a quiet HF frequency, band A on a busy FM channel; record the USB audio | Both bands, as the speaker hears them; band A has to be quiet | | open |
+| F02 | Is the USB AF level fixed by Menu 91A, or does it follow the volume knob? | The level meter's advice; whether turning the speaker down kills the decodes | F2: change the volume while watching the level meter | Fixed by Menu 91A | | open |
+| F03 | What is the AF passband in USB mode, and does Menu 120 (SSB filter) change it? | FT8 uses 200–3000 Hz of audio; a 2.4 kHz filter would cut the top | F2: noise spectrum of an AF recording at each SSB filter setting | About 100–2900 Hz at the widest setting | | open |
+| F04 | Does the radio's SSB AGC pump on a strong FT8 signal, and can it be set to slow or off? | Strong signals could pull weak ones in the same slot under the noise | F2: owner watches the waterfall's noise floor under a strong signal, AGC fast vs slow | AGC on, adjustable in the menu | | open |
+| F05 | On an HF dial frequency, is audio 0 Hz exactly at the dial (the USB carrier), or offset? | RF frequency labels and spot reports | F2: a decode's audio frequency vs. WSJT-X on another receiver, or a known carrier | Within ±10 Hz on HF | | open |
+
 ## Changes to the spec
 
 None yet: the probe has not run on the radio.
