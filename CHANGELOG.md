@@ -1,5 +1,48 @@
 # Changelog
 
+## S1 — d75sat page (2026-10-30, waiting for the owner's check)
+
+- `d75sat` serves a page on localhost:8078:
+  - a map with satellites, the selected one's ground track and footprint,
+    footprints of satellites in view, and the station's visibility
+    circle;
+  - a next-pass card with a countdown;
+  - a pass table for the next day, and the satellite list;
+  - a selected-satellite panel with a sky plot of the pass and live
+    Doppler-shifted frequencies;
+  - AOS alerts (banner and Chrome notification);
+  - the location from the Mac (Chrome geolocation), a map click or a
+    locator, saved in the config.
+- `--demo` runs five made-up satellites on a ×10 clock, with a high pass
+  in the first two minutes. `--offline` runs from the cache.
+- `satdata`: CelesTrak (OMM JSON, at most every 2 h) and SatNOGS (daily)
+  with a disk cache, backoff after failures, refusal of non-JSON answers,
+  and filtering to what band B can receive and demodulate.
+- `satapp`, `satweb`: the engine (positions every second, passes, tracks,
+  config) and its server. Wire format in docs/SAT_PROTOCOL.md.
+- Shared with d75aprs, without changing how it behaves or looks:
+  - its map is now a base map in `web/map` (`geo.js` moved there, and
+    grid labels past ±180° fixed);
+  - the localhost guard is now package `localweb`.
+- Tests: satdata against fake servers, satapp on a fixed clock, satweb end
+  to end, the demo catalogue, and Node tests for the footprint, antimeridian,
+  locator and sky-plot maths. The page was checked in headless Chrome.
+
+## S0 — d75sat orbit core (2026-10-30)
+
+- `orbit`: element sets from TLEs (with checksums) and CelesTrak OMM JSON;
+  SGP4, near-Earth branch, after Vallado et al. 2006 (deep-space sets are
+  refused); GMST and TEME to Earth-fixed; geodetic conversions; azimuth,
+  elevation, range and range rate; pass prediction (AOS, TCA, LOS, passes
+  already in progress); Doppler; coverage footprints and ground tracks.
+- Tests: Vallado's nine near-Earth verification cases (all 158 rows agree
+  to 1 mm during development; 27 embedded), GMST, geodetic round trips,
+  passes against a one-second scan, footprint edges, and fuzz tests of the
+  TLE and OMM parsers.
+- `d75sat passes ELEMENTS-FILE --lat --lon` lists passes, with
+  Doppler-shifted frequencies when given `--freq`.
+- Docs: d75sat spec (docs/SAT.md), decisions 0009–0011, questions S01–S05.
+
 ## F0 — d75ft8 decoder core (2026-10-30)
 
 - `ft8`: FT8 in pure Go. Packs and unpacks 77-bit messages (standard calls

@@ -3,7 +3,7 @@
 // from the air, so it only ever reaches the page through textContent.
 
 import { MapView } from "./map.js";
-import { distanceKm, bearing, compass, locator, formatAge } from "./geo.js";
+import { distanceKm, bearing, compass, locator, formatAge } from "./map/geo.js";
 import { symbolInfo } from "./symbols.js";
 
 const MAX_PACKETS = 1000;

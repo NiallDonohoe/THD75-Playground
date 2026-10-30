@@ -17,6 +17,7 @@ import (
 
 	"d75scope/aprsapp"
 	"d75scope/aprsfi"
+	"d75scope/localweb"
 )
 
 // ProtocolVersion is sent in the hello event.
@@ -57,54 +58,11 @@ func (s *Server) Handler() http.Handler {
 	if s.Tiles != nil {
 		mux.Handle("GET /tiles/{z}/{x}/{y}", s.Tiles)
 	}
-	return guard(mux)
+	return localweb.Guard(mux)
 }
 
 // Listen opens a TCP listener, refusing any address that is not loopback.
-func Listen(addr string) (net.Listener, error) {
-	host, _, err := net.SplitHostPort(addr)
-	if err != nil {
-		return nil, err
-	}
-	if host != "localhost" {
-		ip := net.ParseIP(host)
-		if ip == nil || !ip.IsLoopback() {
-			return nil, fmt.Errorf("refusing to listen on %q: d75aprs serves localhost only", addr)
-		}
-	}
-	return net.Listen("tcp", addr)
-}
-
-// guard refuses requests that did not come from the page itself: the Host
-// must be a loopback name (against DNS rebinding), and a browser's
-// Sec-Fetch-Site and Origin headers, when present, must say same origin.
-func guard(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		host, _, err := net.SplitHostPort(r.Host)
-		if err != nil {
-			host = r.Host
-		}
-		if host != "localhost" && host != "127.0.0.1" && host != "::1" {
-			http.Error(w, "forbidden host", http.StatusForbidden)
-			return
-		}
-		if sfs := r.Header.Get("Sec-Fetch-Site"); sfs != "" && sfs != "same-origin" && sfs != "none" {
-			http.Error(w, "cross-site request refused", http.StatusForbidden)
-			return
-		}
-		if o := r.Header.Get("Origin"); o != "" && o != "http://"+r.Host {
-			http.Error(w, "foreign origin refused", http.StatusForbidden)
-			return
-		}
-		h := w.Header()
-		// Packet text comes from the air: the page never runs anything but
-		// its own scripts.
-		h.Set("Content-Security-Policy", "default-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
-		h.Set("X-Content-Type-Options", "nosniff")
-		h.Set("Referrer-Policy", "no-referrer")
-		next.ServeHTTP(w, r)
-	})
-}
+func Listen(addr string) (net.Listener, error) { return localweb.Listen("d75aprs", addr) }
 
 func (s *Server) events(w http.ResponseWriter, r *http.Request) {
 	fl, ok := w.(http.Flusher)
@@ -169,11 +127,7 @@ func (s *Server) events(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// writeEvent writes one server-sent event. Compact JSON has no newlines, so
-// one data line holds it.
-func writeEvent(w http.ResponseWriter, typ string, data []byte) {
-	fmt.Fprintf(w, "event: %s\ndata: %s\n\n", typ, data)
-}
+func writeEvent(w http.ResponseWriter, typ string, data []byte) { localweb.WriteEvent(w, typ, data) }
 
 func (s *Server) lookup(w http.ResponseWriter, r *http.Request) {
 	if mt, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type")); mt != "application/json" {
@@ -219,8 +173,4 @@ func validCall(s string) bool {
 	return true
 }
 
-func writeJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(v)
-}
+func writeJSON(w http.ResponseWriter, status int, v any) { localweb.WriteJSON(w, status, v) }

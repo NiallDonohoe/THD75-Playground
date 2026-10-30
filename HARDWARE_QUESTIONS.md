@@ -74,6 +74,20 @@ above apply as well.
 | F04 | Does the radio's SSB AGC pump on a strong FT8 signal, and can it be set to slow or off? | Strong signals could pull weak ones in the same slot under the noise | F2: owner watches the waterfall's noise floor under a strong signal, AGC fast vs slow | AGC on, adjustable in the menu | | open |
 | F05 | On an HF dial frequency, is audio 0 Hz exactly at the dial (the USB carrier), or offset? | RF frequency labels and spot reports | F2: a decode's audio frequency vs. WSJT-X on another receiver, or a known carrier | Within ±10 Hz on HF | | open |
 
+## d75sat: Doppler tuning
+
+Questions for the satellite program ([docs/SAT.md](docs/SAT.md)), answered
+by the owner's S2 checklist. Q15 (how FQ rounds with fine tuning on) above
+applies as well.
+
+| ID | Question | Why it matters | How it is answered | Hypothesis | Answer | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| S01 | In FM on band B at 145 and 435 MHz, what does `FQ` do with a frequency off the channel step: round, refuse, or keep it? Does the step menu change that? | How finely FM satellites can be corrected for Doppler (±10 kHz on 70 cm) | S2: send off-step frequencies in FM, read back | Rounds to the band's step (5 kHz by default) | | open |
+| S02 | How often can `FQ` be sent during reception without trouble: audio mutes or clicks, display lag, `?` or `N` replies? | The retune rate limit (one a second assumed) | S2: retune every 2 s, 1 s and 0.5 s on an FM carrier and in USB, listening and logging replies | Once a second is fine; FM mutes briefly on each change | | open |
+| S03 | In USB and CW at 145 and 435 MHz with fine tuning on (`FT 1`, `FS 0`), does `FQ` keep 20 Hz resolution? | Smooth tuning on linear transponders | S2: send frequencies 20 Hz apart, read back | Yes, as on HF | | open |
+| S04 | Does `MD` switch band B between FM, USB, LSB and CW at 145 and 435 MHz, and does it move the dial? | Setting the mode per transmitter | S2: switch modes, read `MD` and `FQ` back | Yes, without moving the dial (Q18) | | open |
+| S05 | With band B on a memory channel, what does `FQ` do? | Setup step "band B in VFO mode", and the error the page shows | S2: send `FQ` in memory mode | Replies `N`; VFO mode needed | | open |
+
 ## Changes to the spec
 
 None yet: the probe has not run on the radio.

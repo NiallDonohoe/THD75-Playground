@@ -97,3 +97,72 @@ export function formatAge(ms) {
 export function ambiguityHalfDeg(level) {
   return [0, 0.1, 1, 10, 60][level] / 60 / 2;
 }
+
+/**
+ * The same points with longitudes made continuous: each one within 180°
+ * of the last, so a line crossing the antimeridian runs on past ±180
+ * instead of jumping across the world. Draw with a raw (unwrapped)
+ * projection.
+ */
+export function unwrap(points) {
+  const out = [];
+  let prev = null;
+  for (const [lat, lon0] of points) {
+    let lon = lon0;
+    if (prev !== null) {
+      while (lon - prev > 180) lon -= 360;
+      while (lon - prev < -180) lon += 360;
+    }
+    out.push([lat, lon]);
+    prev = lon;
+  }
+  return out;
+}
+
+const EARTH_KM = 6378.137;
+
+/**
+ * The circle of points radiusKm (along the ground) from a centre, on a
+ * spherical Earth, as an unwrapped ring of n points. A circle round a
+ * pole cannot be a closed ring in Mercator; it is closed along the edge
+ * of the map instead, and polar is set.
+ */
+export function footprintRing(lat, lon, radiusKm, n = 90) {
+  const r = radiusKm / EARTH_KM;
+  const la = rad(lat), lo = rad(lon);
+  const pts = [];
+  for (let i = 0; i < n; i++) {
+    const b = (2 * Math.PI * i) / n;
+    const pl = Math.asin(Math.sin(la) * Math.cos(r) + Math.cos(la) * Math.sin(r) * Math.cos(b));
+    const pn = lo + Math.atan2(Math.sin(b) * Math.sin(r) * Math.cos(la), Math.cos(r) - Math.sin(la) * Math.sin(pl));
+    pts.push([deg(pl), ((((deg(pn) + 180) % 360) + 360) % 360) - 180]);
+  }
+  const ring = unwrap(pts);
+  // Going all the way round in longitude means the circle holds a pole.
+  const turn = ring[ring.length - 1][1] - ring[0][1] + (ring[1][1] - ring[0][1]);
+  if (Math.abs(turn) > 180) {
+    const edge = lat > 0 ? MAX_LAT : -MAX_LAT;
+    const last = ring[ring.length - 1][1];
+    ring.push([edge, last], [edge, ring[0][1]]);
+    return { points: ring, polar: true };
+  }
+  return { points: ring, polar: false };
+}
+
+/** The centre of a 4- or 6-character Maidenhead locator, or null. */
+export function fromLocator(s) {
+  const m = /^([A-R]{2})([0-9]{2})([A-X]{2})?$/i.exec(s.trim());
+  if (!m) return null;
+  const u = m[1].toUpperCase();
+  let lon = (u.charCodeAt(0) - 65) * 20 + Number(m[2][0]) * 2 - 180;
+  let lat = (u.charCodeAt(1) - 65) * 10 + Number(m[2][1]) - 90;
+  if (m[3]) {
+    const sub = m[3].toUpperCase();
+    lon += ((sub.charCodeAt(0) - 65) + 0.5) * (2 / 24);
+    lat += ((sub.charCodeAt(1) - 65) + 0.5) * (1 / 24);
+  } else {
+    lon += 1;
+    lat += 0.5;
+  }
+  return { lat, lon };
+}
