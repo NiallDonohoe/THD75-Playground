@@ -110,3 +110,9 @@ Arrives with demodulation (M3) and the rigctld server (M5): D75 Scope plays
 demodulated audio to a virtual device such as BlackHole, WSJT-X takes its
 input from that device, and WSJT-X tunes the radio through D75 Scope's
 rigctld-compatible port on localhost.
+
+## License
+
+MIT; see [LICENSE](LICENSE). The FT8 LDPC tables in `ft8/ldpc_tables.go`
+are generated from ft8_lib, whose MIT notice is in
+[ft8/LICENSE.ft8_lib](ft8/LICENSE.ft8_lib).
