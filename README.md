@@ -35,13 +35,18 @@ make build
 ```
 
 A fourth, `d75sat`, is for listening to amateur satellites: passes, a map
-with ground tracks and coverage, and Doppler tuning of band B. Listen only.
-See [docs/SAT.md](docs/SAT.md). So far it predicts passes from an element
-file (TLEs or CelesTrak's OMM JSON):
+with ground tracks and coverage, and (from milestone S2) Doppler tuning of
+band B. Listen only. See [docs/SAT.md](docs/SAT.md). The page runs now,
+on real data from CelesTrak and SatNOGS or on made-up satellites:
 
 ```sh
+./bin/d75sat --demo          # made-up satellites, clock ×10
+./bin/d75sat                 # real data; set your location on the page
+# then open http://127.0.0.1:8078/ in Chrome
 ./bin/d75sat passes --lat 53.35 --lon -6.26 --freq 145.8 amateur.tle
 ```
+
+What to check is in [docs/CHECKLIST_S1.md](docs/CHECKLIST_S1.md).
 
 ## Requirements
 

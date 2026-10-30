@@ -100,7 +100,8 @@ The station's position comes from the Mac (0009):
 ## Page (S1)
 
 One page on `http://127.0.0.1:8078/`, in plain JavaScript like d75aprs,
-using the same map moved to a shared `web/map`:
+on the same base map (`web/map`). Wire format in
+[SAT_PROTOCOL.md](SAT_PROTOCOL.md).
 
 - **Map**:
   - ground tracks for the selected satellites, one orbit back and one
@@ -124,12 +125,14 @@ using the same map moved to a shared `web/map`:
 | Package | Role |
 | --- | --- |
 | `orbit` | Elements (TLE, OMM JSON), SGP4 (near-Earth), frames, look angles, passes, Doppler, footprints and ground tracks. Pure Go, no I/O. |
-| `satdata` | (S1) CelesTrak and SatNOGS clients with disk cache, rate limits and filtering. |
-| `satapp` | (S1) Satellites, passes and alerts for the page; (S2) the Doppler loop. |
-| `satweb` | (S1) HTTP server, embedded page, server-sent events. |
-| `web/map` | (S1) The canvas map and its maths, moved from `web/aprs` and shared. |
-| `web/sat` | (S1) The page. |
-| `cmd/d75sat` | `passes` now; the page from S1, tuning from S2. |
+| `satdata` | CelesTrak and SatNOGS clients with disk cache, refresh intervals, backoff and filtering. |
+| `satdemo` | The made-up catalogue for `--demo`. |
+| `satapp` | Satellites, location, alerts, live positions, passes and tracks for the page; (S2) the Doppler loop. |
+| `satweb` | HTTP server, embedded page, server-sent events. Wire format in [SAT_PROTOCOL.md](SAT_PROTOCOL.md). |
+| `localweb` | The loopback listener and request guard, shared with `aprsweb`. |
+| `web/map` | The canvas base map and its maths, shared with d75aprs. |
+| `web/sat` | The page; `sat.js` is tested with Node's built-in runner. |
+| `cmd/d75sat` | The page (`d75sat`, `--demo`, `--offline`) and `passes`; tuning from S2. |
 
 CAT, discovery, the allow-list and snapshot/restore are `radio`, reused
 unchanged. No USB audio is used.
@@ -148,21 +151,28 @@ unchanged. No USB audio is used.
 - **Clients** (S1): fake CelesTrak and SatNOGS servers through `httptest`.
 - **Doppler loop** (S2): a fake clock and the fake radio, checking the
   step size, the rate limit, knob-follow and restore at LOS.
-- **`--demo`** (S1): bundled elements and transmitters, and a clock that
-  can run fast, so a whole pass plays out in a minute.
+- **`--demo`**: five made-up satellites (DEMOSAT-1 to 5, catalogue 99901
+  on) with realistic orbits and downlinks, elements fresh at start, and a
+  clock running ×10 by default (`--speed`). DEMOSAT-1 is placed so a pass
+  over the station rises within three minutes and peaks above 45°.
+- **The page** was checked in headless Chrome over the DevTools protocol:
+  selection, tracks and footprints across ±180° and the poles, Doppler,
+  alerts with notifications granted, Mac location with a faked position,
+  map picking and locators. d75aprs's page was checked the same way after
+  the map moved.
 
 ## Milestones
 
 Each ends with green tests, a changelog entry and an owner check. They do
 not wait for the other programs' milestones.
 
-1. **S0 — Orbit core.** `orbit` and `d75sat passes`. Built and green. Owner
-   check, optional and with no radio: compare a day of ISS passes with
-   Heavens-Above or Gpredict.
-2. **S1 — Page, in demo mode.** Data clients and cache, the shared map,
-   satellite list, pass table, sky plot, tracks and footprints, location,
-   alerts and `--demo`. Done when the owner has worked through checklist S1
-   in Chrome.
+1. **S0 — Orbit core.** `orbit` and `d75sat passes`. Done; the owner check
+   (comparing ISS passes with Heavens-Above or Gpredict) is folded into
+   checklist S1.
+2. **S1 — The page.** Data clients and cache, the shared map, satellite
+   list, pass table, sky plot, tracks and footprints, location, alerts and
+   `--demo`. Built and green. Done when the owner has worked through
+   [CHECKLIST_S1.md](CHECKLIST_S1.md) in Chrome, demo and real data.
 3. **S2 — Doppler tuning.** The tuning loop on the radio through `Guard`,
    the mode per transmitter, knob-follow and restore at LOS. Done when the
    owner has heard an FM satellite and followed a linear transponder
