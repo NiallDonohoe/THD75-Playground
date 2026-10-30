@@ -1,7 +1,7 @@
-// node --test web/aprs
+// node --test web/map
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { project, unproject, visibleTiles, distanceKm, bearing, compass, locator, formatAge, ambiguityHalfDeg, TILE } from "./geo.js";
+import { project, unproject, visibleTiles, distanceKm, bearing, compass, locator, formatAge, ambiguityHalfDeg, TILE, unwrap, footprintRing, fromLocator } from "./geo.js";
 
 const near = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, `${msg}: ${a} not within ${tol} of ${b}`);
 
@@ -64,4 +64,42 @@ test("ages", () => {
 test("ambiguity boxes", () => {
   assert.equal(ambiguityHalfDeg(0), 0);
   near(ambiguityHalfDeg(4), 0.5, 1e-12, "level 4");
+});
+
+test("unwrap keeps longitudes continuous across the antimeridian", () => {
+  const u = unwrap([[0, 170], [1, 179], [2, -175], [3, -160], [4, 175]]);
+  assert.deepEqual(u.map((p) => p[1]), [170, 179, 185, 200, 175]);
+});
+
+test("footprint ring: every point at the radius", () => {
+  const { points, polar } = footprintRing(53.35, -6.26, 2200, 36);
+  assert.equal(polar, false);
+  assert.equal(points.length, 36);
+  for (const [lat, lon] of points) near(distanceKm({ lat: 53.35, lon: -6.26 }, { lat, lon }), 2200, 15, "distance");
+});
+
+test("footprint ring across the antimeridian stays continuous", () => {
+  const { points } = footprintRing(0, 179, 2000, 36);
+  for (let i = 1; i < points.length; i++) assert.ok(Math.abs(points[i][1] - points[i - 1][1]) < 30, "jump");
+});
+
+test("footprint ring round a pole closes along the map edge", () => {
+  const { points, polar } = footprintRing(80, 20, 2600, 36);
+  assert.equal(polar, true);
+  assert.equal(points.length, 38);
+  near(points[36][0], 85.0511287798, 1e-6, "edge");
+});
+
+test("locator: round trip with locator()", () => {
+  assert.equal(fromLocator("nope"), null);
+  for (const [lat, lon] of [[53.35, -6.26], [-33.85, 151.2], [41.71, -72.73]]) {
+    const loc = locator(lat, lon);
+    const c = fromLocator(loc);
+    assert.equal(locator(c.lat, c.lon), loc);
+    near(c.lat, lat, 1 / 24, "lat");
+    near(c.lon, lon, 2 / 24, "lon");
+  }
+  const io63 = fromLocator("io63");
+  near(io63.lat, 53.5, 1e-9, "IO63 lat");
+  near(io63.lon, -7, 1e-9, "IO63 lon");
 });

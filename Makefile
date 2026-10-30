@@ -1,7 +1,7 @@
 GO ?= go
 BIN := bin
 
-.PHONY: build test test-nocgo test-web test-ft8-reference test-hardware vet mock aprs-demo web app clean
+.PHONY: build test test-nocgo test-web test-ft8-reference test-hardware vet mock aprs-demo sat-demo web app clean
 
 ## build: build the binaries into bin/ (d75scope arrives in M1)
 build:
@@ -17,9 +17,13 @@ test: vet test-nocgo test-web
 test-nocgo:
 	CGO_ENABLED=0 $(GO) test ./...
 
-## test-web: the page's map maths, with Node's built-in runner (skipped without Node)
+## test-## sat-demo: run d75sat on made-up satellites; open http://127.0.0.1:8078/
+sat-demo: build
+	$(BIN)/d75sat --demo
+
+web: the pages' map and sky maths, with Node's built-in runner (skipped without Node)
 test-web:
-	@if command -v node >/dev/null; then node --test web/aprs/*.test.mjs; else echo "test-web: no node, skipped"; fi
+	@if command -v node >/dev/null; then node --test web/*/*.test.mjs; else echo "test-web: no node, skipped"; fi
 
 ## test-ft8-reference: decode recordings that have WSJT-X's decodes alongside
 ## (FT8_REFERENCE_DIR, default testdata/ft8; skipped when there are none)
