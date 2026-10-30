@@ -1,12 +1,13 @@
 GO ?= go
 BIN := bin
 
-.PHONY: build test test-nocgo test-web test-hardware vet mock aprs-demo web app clean
+.PHONY: build test test-nocgo test-web test-ft8-reference test-hardware vet mock aprs-demo web app clean
 
 ## build: build the binaries into bin/ (d75scope arrives in M1)
 build:
 	$(GO) build -o $(BIN)/d75probe ./cmd/d75probe
 	$(GO) build -o $(BIN)/d75aprs ./cmd/d75aprs
+	$(GO) build -o $(BIN)/d75ft8 ./cmd/d75ft8
 
 ## test: all tests, with and without cgo (no radio needed)
 test: vet test-nocgo test-web
@@ -18,6 +19,11 @@ test-nocgo:
 ## test-web: the page's map maths, with Node's built-in runner (skipped without Node)
 test-web:
 	@if command -v node >/dev/null; then node --test web/aprs/*.test.mjs; else echo "test-web: no node, skipped"; fi
+
+## test-ft8-reference: decode recordings that have WSJT-X's decodes alongside
+## (FT8_REFERENCE_DIR, default testdata/ft8; skipped when there are none)
+test-ft8-reference:
+	$(GO) test -v -run TestDecodeReferenceRecordings ./ft8
 
 ## test-hardware: tests that need the radio plugged in
 test-hardware:
