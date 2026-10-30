@@ -1,5 +1,20 @@
 # Changelog
 
+## S0 — d75sat orbit core (2026-10-30)
+
+- `orbit`: element sets from TLEs (with checksums) and CelesTrak OMM JSON;
+  SGP4, near-Earth branch, after Vallado et al. 2006 (deep-space sets are
+  refused); GMST and TEME to Earth-fixed; geodetic conversions; azimuth,
+  elevation, range and range rate; pass prediction (AOS, TCA, LOS, passes
+  already in progress); Doppler; coverage footprints and ground tracks.
+- Tests: Vallado's nine near-Earth verification cases (all 158 rows agree
+  to 1 mm during development; 27 embedded), GMST, geodetic round trips,
+  passes against a one-second scan, footprint edges, and fuzz tests of the
+  TLE and OMM parsers.
+- `d75sat passes ELEMENTS-FILE --lat --lon` lists passes, with
+  Doppler-shifted frequencies when given `--freq`.
+- Docs: d75sat spec (docs/SAT.md), decisions 0009–0011, questions S01–S05.
+
 ## F0 — d75ft8 decoder core (2026-10-30)
 
 - `ft8`: FT8 in pure Go. Packs and unpacks 77-bit messages (standard calls

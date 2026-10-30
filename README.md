@@ -34,6 +34,15 @@ make build
 ./bin/d75ft8 encode --freq 1500 "CQ YOURCALL IO63"   # writes ft8.wav
 ```
 
+A fourth, `d75sat`, is for listening to amateur satellites: passes, a map
+with ground tracks and coverage, and Doppler tuning of band B. Listen only.
+See [docs/SAT.md](docs/SAT.md). So far it predicts passes from an element
+file (TLEs or CelesTrak's OMM JSON):
+
+```sh
+./bin/d75sat passes --lat 53.35 --lon -6.26 --freq 145.8 amateur.tle
+```
+
 ## Requirements
 
 - An Apple Silicon Mac (Linux compiles but is untested), Go 1.27, and the
