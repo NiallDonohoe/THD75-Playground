@@ -8,6 +8,7 @@ build:
 	$(GO) build -o $(BIN)/d75probe ./cmd/d75probe
 	$(GO) build -o $(BIN)/d75aprs ./cmd/d75aprs
 	$(GO) build -o $(BIN)/d75ft8 ./cmd/d75ft8
+	$(GO) build -o $(BIN)/d75sat ./cmd/d75sat
 
 ## test: all tests, with and without cgo (no radio needed)
 test: vet test-nocgo test-web
