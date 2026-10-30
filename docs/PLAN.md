@@ -30,6 +30,22 @@ same time, because d75aprs needs the TNC in KISS mode on the USB port.
 | A3 Messaging and beacons over IP | Not started. |
 | A4 RF transmit | Not started. |
 
+## Third program: d75ft8
+
+An FT8 decoder (audio waterfall, decodes, band picker) agreed on
+2026-10-29. The brief makes in-program digital decoding a d75scope non-goal,
+so it is a separate program with its own spec and milestones F0–F2
+([FT8.md](FT8.md), decisions 0007–0008). It takes band B's AF output in USB
+mode, so it needs none of the open IF answers, and it is receive only (the
+radio takes no audio over USB). Its CAT writes (`IO`, `MD`, `FQ` on band B)
+are already on the allow-list.
+
+| Milestone | State |
+| --- | --- |
+| F0 Decoder core (`ft8`, `d75ft8 decode`/`encode`) | Built and green; 89% of WSJT-X's decodes on the ft8_lib recordings. Owner check optional (no radio). |
+| F1 Page, demo mode | Not started. |
+| F2 Live receive | Not started. |
+
 ## Module layout
 
 ```
@@ -49,6 +65,8 @@ d75scope/                 Go module (go 1.27)
 │                         termios serial, USB discovery, snapshot/restore,
 │                         fake TH-D75 (in-memory pipe and pseudo-terminal)
 ├── probe                 the probe's logic: steps, analysis, report, summary
+├── ft8                   d75ft8: FT8 packing, coding, synthesis, decoder (pure Go)
+├── cmd/d75ft8            d75ft8: decode and encode WAV files (F0); page (F1+)
 ├── server                M1+: HTTP, embedded assets, WebSocket, rigctld (M5)
 ├── web                   M1+: TypeScript front end (esbuild, strict)
 ├── schema                JSON schema of probe-report.json

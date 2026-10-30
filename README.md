@@ -23,6 +23,17 @@ make build
 
 What to check is in [docs/CHECKLIST_A1.md](docs/CHECKLIST_A1.md).
 
+A third program, `d75ft8`, decodes FT8 itself, from band B's audio in USB
+mode, without WSJT-X. Receive only. See [docs/FT8.md](docs/FT8.md). So far
+the decoder works on recordings: 15-second WAV files such as the ones
+WSJT-X saves (Save → All).
+
+```sh
+make build
+./bin/d75ft8 decode ~/Library/Application\ Support/WSJT-X/save/*.wav
+./bin/d75ft8 encode --freq 1500 "CQ YOURCALL IO63"   # writes ft8.wav
+```
+
 ## Requirements
 
 - An Apple Silicon Mac (Linux compiles but is untested), Go 1.27, and the
