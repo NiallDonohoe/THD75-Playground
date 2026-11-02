@@ -46,6 +46,24 @@ are already on the allow-list.
 | F1 Page, demo mode | Not started. |
 | F2 Live receive | Not started. |
 
+## Fourth program: d75winlink
+
+A Winlink email client (compose, mailbox, sessions with the CMS or a packet
+RMS gateway) agreed on 2026-11-02. It transmits on RF, which d75scope must
+never do, so it is a separate program with its own spec and milestones
+W0–W4 ([WINLINK.md](WINLINK.md), decisions 0009–0010). It reaches the CMS
+over Telnet first (W2), then over AX.25 connected mode through the KISS TNC
+(W3 receive, W4 transmit), with RF transmit off by default. `kiss` is shared
+with d75aprs's A2.
+
+| Milestone | State |
+| --- | --- |
+| W0 Core (`lzhuf`, `winlink`, fake CMS) | Not started. |
+| W1 Page, demo mode | Not started. |
+| W2 Telnet to the CMS | Not started. |
+| W3 KISS and AX.25, receive only | Not started. |
+| W4 RF sessions | Not started. |
+
 ## Module layout
 
 ```
