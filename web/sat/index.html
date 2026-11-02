@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>d75sat</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <header class="bar">
+    <div class="brand">d75sat</div>
+    <span id="demo-badge" class="badge demo" hidden>Demo</span>
+    <span class="badge listen" title="d75sat only ever tunes band B; it never transmits and never sets an uplink">Listen only</span>
+    <button id="loc-btn" class="loc" aria-haspopup="true" aria-controls="loc-panel">
+      <span class="dot"></span><span id="loc-text">Set your location</span>
+    </button>
+    <div class="sources">
+      <span class="src" data-src="celestrak" title="Orbits"><span class="dot"></span>CelesTrak <span class="state"></span></span>
+      <span class="src" data-src="satnogs" title="Transmitters"><span class="dot"></span>SatNOGS <span class="state"></span></span>
+    </div>
+    <span id="clock" class="clock mono" title="The program's clock (fast in demo mode)"></span>
+    <span id="conn" class="conn" role="status">connecting…</span>
+  </header>
+
+  <div id="loc-panel" class="popover" hidden role="dialog" aria-labelledby="loc-title">
+    <h2 id="loc-title">Your location</h2>
+    <p class="note">Used for passes, look angles and Doppler. It stays on this Mac: it is only sent to d75sat on localhost.</p>
+    <button id="loc-mac" class="primary">Use this Mac's location</button>
+    <button id="loc-pick">Pick on the map</button>
+    <form id="loc-form" class="row">
+      <input id="loc-locator" placeholder="Locator, e.g. IO63wi" maxlength="6" autocomplete="off" spellcheck="false" aria-label="Maidenhead locator">
+      <button type="submit">Set</button>
+    </form>
+    <p id="loc-msg" class="msg" role="status"></p>
+    <button id="loc-close" class="link">Close</button>
+  </div>
+
+  <div id="alert-banner" class="alert-banner" role="alert" hidden>
+    <span id="alert-text"></span>
+    <button id="alert-dismiss" aria-label="Dismiss">×</button>
+  </div>
+
+  <main>
+    <section class="map-wrap" aria-label="Map">
+      <canvas id="map" tabindex="0" aria-label="Map of satellites. Drag or use the arrow keys to pan, + and − to zoom."></canvas>
+      <div class="map-controls">
+        <button id="zoom-in" aria-label="Zoom in">+</button>
+        <button id="zoom-out" aria-label="Zoom out">−</button>
+        <button id="centre-me" aria-label="Centre on my station" title="Centre on my station">◎</button>
+        <button id="centre-sat" aria-label="Follow the selected satellite" title="Follow the selected satellite" aria-pressed="false">⊕</button>
+      </div>
+      <div class="legend">
+        <span><i class="dot sel"></i>selected</span>
+        <span><i class="dot up"></i>in view</span>
+        <span><i class="dot other"></i>below your horizon</span>
+        <span><i class="line"></i>footprint</span>
+        <span><i class="line dashed"></i>where it must be for you to hear it</span>
+      </div>
+      <p id="pick-hint" class="pick-hint" hidden>Click the map at your location. <button id="pick-cancel" class="link">Cancel</button></p>
+      <p id="tiles-off" class="tiles-off" hidden>Map tiles are off: satellites are drawn on a latitude–longitude grid.</p>
+      <div class="attribution">
+        <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a>
+        · Orbits: <a href="https://celestrak.org/" target="_blank" rel="noopener noreferrer">CelesTrak</a>
+        · Transmitters: <a href="https://db.satnogs.org/" target="_blank" rel="noopener noreferrer">SatNOGS DB</a>
+        (<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>)
+      </div>
+      <div id="tooltip" class="tooltip" hidden></div>
+    </section>
+
+    <aside class="side">
+      <section id="next" class="next" aria-live="polite"></section>
+
+      <nav class="tabs" role="tablist">
+        <button id="tabbtn-passes" role="tab">Passes <span id="count-passes" class="count"></span></button>
+        <button id="tabbtn-sats" role="tab">Satellites <span id="count-sats" class="count"></span></button>
+      </nav>
+
+      <section id="tab-passes" class="tab" role="tabpanel">
+        <div class="toolbar">
+          <label>Peak at least
+            <select id="min-el">
+              <option value="0">0°</option>
+              <option value="10" selected>10°</option>
+              <option value="20">20°</option>
+              <option value="30">30°</option>
+              <option value="45">45°</option>
+            </select>
+          </label>
+          <label><input id="watched-only" type="checkbox"> Alerted satellites only</label>
+        </div>
+        <table class="passes">
+          <thead><tr><th>AOS (UTC)</th><th>Satellite</th><th>Length</th><th>Peak</th><th>Rise → set</th></tr></thead>
+          <tbody id="pass-rows"></tbody>
+        </table>
+        <p id="pass-empty" class="empty" hidden></p>
+      </section>
+
+      <section id="tab-sats" class="tab" role="tabpanel" hidden>
+        <input id="search" type="search" placeholder="Filter satellites" autocomplete="off" spellcheck="false" aria-label="Filter satellites">
+        <ul id="sat-list" class="list"></ul>
+      </section>
+
+      <section id="detail" class="detail" hidden aria-label="Selected satellite">
+        <header>
+          <h2 id="d-name"></h2>
+          <button id="d-alert" class="bell" aria-pressed="false" title="Alert me before this satellite rises">🔔 Alert</button>
+          <button id="d-close" class="link" aria-label="Close">×</button>
+        </header>
+        <div id="d-facts" class="facts"></div>
+        <canvas id="sky" width="220" height="220" aria-label="Sky plot of the pass: north up, east right, the horizon on the rim"></canvas>
+        <div id="d-pass" class="pass-facts"></div>
+        <h3>Transmitters</h3>
+        <table class="tx">
+          <thead><tr><th>Downlink</th><th>Heard on now</th></tr></thead>
+          <tbody id="d-tx"></tbody>
+        </table>
+        <p class="note">Doppler tuning of band B arrives with milestone S2. Until then, tune by hand to the frequency in the last column.</p>
+        <p id="d-links" class="note"></p>
+      </section>
+
+      <section class="alert-settings">
+        <h3>Alerts</h3>
+        <form id="alert-form" class="row">
+          <label><input id="alert-min" type="number" min="1" max="60" step="1"> min before AOS</label>
+          <label>for peaks ≥ <input id="alert-el" type="number" min="0" max="90" step="5">°</label>
+          <button type="submit">Save</button>
+        </form>
+        <p id="notify-state" class="note"></p>
+      </section>
+    </aside>
+  </main>
+</body>
+</html>

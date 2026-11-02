@@ -46,12 +46,26 @@ are already on the allow-list.
 | F1 Page, demo mode | Not started. |
 | F2 Live receive | Not started. |
 
-## Fourth program: d75winlink
+## Fourth program: d75sat
+
+Satellite listening (passes, map with ground tracks and footprints, Doppler
+tuning of band B, AOS alerts), agreed on 2026-10-30. It is a separate
+program with its own spec and milestones S0–S2 ([SAT.md](SAT.md), decisions
+0009–0011). It only writes band B with commands already allowed, so the
+allow-list is unchanged. The station's position comes from the browser.
+
+| Milestone | State |
+| --- | --- |
+| S0 Orbit core (`orbit`, `d75sat passes`) | Done; SGP4 matches Vallado's near-Earth cases to 1 mm. |
+| S1 The page (demo and real data) | Built and green; **waiting for the owner's check** ([CHECKLIST_S1.md](CHECKLIST_S1.md)). |
+| S2 Doppler tuning | Not started. |
+
+## Fifth program: d75winlink
 
 A Winlink email client (compose, mailbox, sessions with the CMS or a packet
 RMS gateway) agreed on 2026-11-02. It transmits on RF, which d75scope must
 never do, so it is a separate program with its own spec and milestones
-W0–W4 ([WINLINK.md](WINLINK.md), decisions 0012–0013; 0009–0011 are d75sat's, on its branch). It reaches the CMS
+W0–W4 ([WINLINK.md](WINLINK.md), decisions 0012–0013). It reaches the CMS
 over Telnet first (W2), then over AX.25 connected mode through the KISS TNC
 (W3 receive, W4 transmit), with RF transmit off by default. `kiss` is shared
 with d75aprs's A2.
@@ -85,6 +99,18 @@ d75scope/                 Go module (go 1.27)
 ├── probe                 the probe's logic: steps, analysis, report, summary
 ├── ft8                   d75ft8: FT8 packing, coding, synthesis, decoder (pure Go)
 ├── cmd/d75ft8            d75ft8: decode and encode WAV files (F0); page (F1+)
+├── orbit                 d75sat: elements, SGP4, look angles, passes, Doppler, footprints
+├── satdata, satdemo      d75sat: CelesTrak and SatNOGS with cache; the demo catalogue
+├── satapp, satweb        d75sat: engine and page server
+├── localweb              loopback listener and request guard (aprsweb, satweb, winlinkweb)
+├── web/map               the canvas base map shared by d75aprs and d75sat
+├── cmd/d75sat            d75sat: the page, and pass predictions
+├── lzhuf                 d75winlink: LZHUF compression with B2F's CRC header (pure Go)
+├── winlink               d75winlink: messages, B2F, the client session, Telnet login;
+│                         winlink/winlinktest is the fake CMS
+├── winlinkapp, winlinkweb d75winlink: mailbox, sessions and events; page server
+├── winlinkdemo           d75winlink: --demo, the fake CMS with made-up mail
+├── cmd/d75winlink        d75winlink: the page (W1 demo; Telnet from W2)
 ├── server                M1+: HTTP, embedded assets, WebSocket, rigctld (M5)
 ├── web                   M1+: TypeScript front end (esbuild, strict)
 ├── schema                JSON schema of probe-report.json
