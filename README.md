@@ -5,7 +5,7 @@ over USB audio, and D75 Scope turns it into a waterfall in Chrome, with
 software SSB, CW and AM demodulation and tuning over the USB serial (CAT)
 port. Receive only: nothing in it can make the radio transmit.
 
-This repository holds four programs that share one radio and some packages:
+This repository holds these programs, which share one radio and some packages:
 
 | Program | What it does | Status | Spec |
 | --- | --- | --- | --- |
@@ -14,6 +14,7 @@ This repository holds four programs that share one radio and some packages:
 | `d75aprs` | APRS client: map, messages, beacons | A1 demo page built, awaiting check | [APRS](docs/APRS.md) |
 | `d75ft8` | FT8 decoder and encoder | F0 (WAV files) merged; live page is F1 | [FT8](docs/FT8.md) |
 | `d75sat` | Satellite passes, map, Doppler | S1 page built, awaiting check | [SAT](docs/SAT.md) |
+| `d75winlink` | Winlink email: compose, mailbox, sessions over Telnet and later RF | W1 demo page built, awaiting check | [WINLINK](docs/WINLINK.md) |
 
 **Status of d75scope: milestone M0.** The hardware probe (`d75probe`) is built and
 tested against a fake radio. Next it needs a run on the real radio
@@ -57,6 +58,20 @@ on real data from CelesTrak and SatNOGS or on made-up satellites:
 ```
 
 What to check is in [docs/CHECKLIST_S1.md](docs/CHECKLIST_S1.md).
+
+The fifth, `d75winlink`, sends and receives Winlink email: compose,
+a mailbox, and sessions with Winlink over the internet (Telnet) and later
+over RF through the radio's KISS TNC, with RF transmit off by default. See
+[docs/WINLINK.md](docs/WINLINK.md). So far its page runs against a fake
+Winlink server in the program, with made-up mail:
+
+```sh
+make build
+./bin/d75winlink --demo --call YOURCALL
+# then open http://127.0.0.1:8079/ in Chrome
+```
+
+What to check is in [docs/CHECKLIST_W1.md](docs/CHECKLIST_W1.md).
 
 ## Requirements
 
@@ -106,33 +121,36 @@ The questions it answers are in [HARDWARE_QUESTIONS.md](HARDWARE_QUESTIONS.md).
 ## Development
 
 ```sh
-make build               # all four binaries into bin/
+make build               # all the binaries into bin/
 make test                # vet, go test with and without cgo, and the Node tests
-make test-web            # Node tests of the pages' map and sky maths (skipped without Node)
+make test-web            # Node tests of the pages' helpers (skipped without Node)
 make test-ft8-reference  # decode recordings that have WSJT-X's decodes alongside
 make test-hardware       # tests that need the radio
 make mock                # the probe against the fake radio
 make aprs-demo           # d75aprs on made-up traffic
 make sat-demo            # d75sat on made-up satellites
+make winlink-demo        # d75winlink against a fake Winlink server
 ```
 
 `d75sat` flags: `--demo`, `--speed`, `--offline` (cached data only),
-`--lat`/`--lon`, `--addr`, `--no-tiles`, `--tile-url`, `-v`. The pages listen on
+`--lat`/`--lon`, `--addr`, `--no-tiles`, `--tile-url`, `-v`. `d75winlink` flags:
+`--demo`, `--call`, `--locator`, `--dir`, `--demo-rate`, `--addr`, `-v`. The pages listen on
 loopback only and refuse requests from other sites.
 
 ### Layout
 
 | Directory | Contents |
 | --- | --- |
-| `cmd/` | The four programs' `main` packages |
+| `cmd/` | The programs' `main` packages |
 | `radio/`, `audio/`, `ifsource/`, `probe/` | CAT over USB serial, Core Audio capture, IF sources (real and synthetic), the probe and its report |
 | `dsp/` | FFT, DFT, FIR, spectra, WAV |
 | `aprs/`, `aprsapp/`, `aprsfi/`, `aprsweb/` | APRS parser and encoder, engine, aprs.fi lookups, server |
 | `ft8/` | FT8 packing, LDPC, synthesis and decoder |
 | `orbit/`, `satdata/`, `satapp/`, `satweb/`, `satdemo/` | SGP4 and passes, CelesTrak and SatNOGS, engine, server, demo catalogue |
+| `lzhuf/`, `winlink/`, `winlinkapp/`, `winlinkweb/`, `winlinkdemo/` | Winlink's compression, messages, B2F and the fake CMS; mailbox and sessions; server; demo |
 | `demo/` | Made-up APRS traffic |
 | `localweb/`, `tiles/` | Shared loopback listener and request guard; map tile proxy |
-| `web/` | Embedded pages: `aprs/`, `sat/` and the shared `map/` |
+| `web/` | Embedded pages: `aprs/`, `sat/`, `winlink/` and the shared `map/` |
 | `docs/`, `schema/` | Specs, protocols, checklists, decisions; the probe report schema |
 
 Per-change history is in [CHANGELOG.md](CHANGELOG.md).

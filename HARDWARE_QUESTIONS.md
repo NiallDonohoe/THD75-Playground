@@ -88,6 +88,22 @@ applies as well.
 | S04 | Does `MD` switch band B between FM, USB, LSB and CW at 145 and 435 MHz, and does it move the dial? | Setting the mode per transmitter | S2: switch modes, read `MD` and `FQ` back | Yes, without moving the dial (Q18) | | open |
 | S05 | With band B on a memory channel, what does `FQ` do? | Setup step "band B in VFO mode", and the error the page shows | S2: send `FQ` in memory mode | Replies `N`; VFO mode needed | | open |
 
+## d75winlink: packet sessions through the KISS TNC
+
+Questions for the Winlink client ([docs/WINLINK.md](docs/WINLINK.md)),
+answered by the owner's W3 (receive) and W4 (transmit) checklists. K01, K03,
+K04, K06 and K07 above apply as well.
+
+| ID | Question | Why it matters | How it is answered | Hypothesis | Answer | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| W01 | Can the TNC run KISS at 9600 bps, and is the speed set only on the radio? | Which gateways can be used; airtime estimates | Owner, W3 checklist | 1200 and 9600 from the TNC menu; the host cannot change it | | open |
+| W02 | Does the TNC pass every frame it hears in KISS mode, including I and S frames between other stations? | The W3 monitor, and seeing a gateway's traffic before transmitting | W3: monitor a gateway's frequency while another station has a session | Yes, all frames with a good FCS | | open |
+| W03 | Does the TNC use its own TXDELAY, persistence and slot time in KISS mode, and are they set in the radio's menu? | Timing of our frames; the program sends no KISS parameter commands | Owner, W3 checklist: read the TNC menu | Yes, from the menu | | open |
+| W04 | Are there packet RMS gateways within reach, and on which frequencies and speeds? | Whether the RF route is usable at all | Owner, from Winlink's gateway map, then W3 monitoring | One or more on 2 m or 70 cm at 1200 bps | | open |
+| W05 | In KISS mode, does the radio's own APRS stay silent, so it never beacons into a session? | A beacon mid-session would collide with the gateway | W4: a 10-minute session with APRS beaconing set to a short interval beforehand | Silent (as K02) | | open |
+| W06 | How long does the radio take from a KISS frame arriving to RF out, and back to receive after it? | T1 and the window size that work in practice | W4: session log timings, with a second receiver | Under 300 ms each way at 1200 bps | | open |
+| W07 | Does a frame of 128 bytes (paclen) plus headers go out whole, and is there a frame length the TNC refuses? | paclen ceiling | W4: send at 64 then 128 and compare the gateway's acks | 128 is fine; 256 is the TNC's limit | | open |
+
 ## Changes to the spec
 
 None yet: the probe has not run on the radio.

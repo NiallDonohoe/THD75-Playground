@@ -60,6 +60,24 @@ allow-list is unchanged. The station's position comes from the browser.
 | S1 The page (demo and real data) | Built and green; **waiting for the owner's check** ([CHECKLIST_S1.md](CHECKLIST_S1.md)). |
 | S2 Doppler tuning | Not started. |
 
+## Fifth program: d75winlink
+
+A Winlink email client (compose, mailbox, sessions with the CMS or a packet
+RMS gateway) agreed on 2026-11-02. It transmits on RF, which d75scope must
+never do, so it is a separate program with its own spec and milestones
+W0–W4 ([WINLINK.md](WINLINK.md), decisions 0012–0013). It reaches the CMS
+over Telnet first (W2), then over AX.25 connected mode through the KISS TNC
+(W3 receive, W4 transmit), with RF transmit off by default. `kiss` is shared
+with d75aprs's A2.
+
+| Milestone | State |
+| --- | --- |
+| W0 Core (`lzhuf`, `winlink`, fake CMS) | Built and green; P01–P05 answered from Pat's source. No owner check needed (no radio, no network). |
+| W1 Page, demo mode | Built and green, and walked through in Chrome; **waiting for the owner's check** ([CHECKLIST_W1.md](CHECKLIST_W1.md)). |
+| W2 Telnet to the CMS | Not started. |
+| W3 KISS and AX.25, receive only | Not started. |
+| W4 RF sessions | Not started. |
+
 ## Module layout
 
 ```
@@ -84,9 +102,15 @@ d75scope/                 Go module (go 1.27)
 ├── orbit                 d75sat: elements, SGP4, look angles, passes, Doppler, footprints
 ├── satdata, satdemo      d75sat: CelesTrak and SatNOGS with cache; the demo catalogue
 ├── satapp, satweb        d75sat: engine and page server
-├── localweb              loopback listener and request guard (aprsweb, satweb)
+├── localweb              loopback listener and request guard (aprsweb, satweb, winlinkweb)
 ├── web/map               the canvas base map shared by d75aprs and d75sat
 ├── cmd/d75sat            d75sat: the page, and pass predictions
+├── lzhuf                 d75winlink: LZHUF compression with B2F's CRC header (pure Go)
+├── winlink               d75winlink: messages, B2F, the client session, Telnet login;
+│                         winlink/winlinktest is the fake CMS
+├── winlinkapp, winlinkweb d75winlink: mailbox, sessions and events; page server
+├── winlinkdemo           d75winlink: --demo, the fake CMS with made-up mail
+├── cmd/d75winlink        d75winlink: the page (W1 demo; Telnet from W2)
 ├── server                M1+: HTTP, embedded assets, WebSocket, rigctld (M5)
 ├── web                   M1+: TypeScript front end (esbuild, strict)
 ├── schema                JSON schema of probe-report.json
