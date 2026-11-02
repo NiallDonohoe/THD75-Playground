@@ -106,7 +106,9 @@ func hasControl(s string) bool {
 	return false
 }
 
-func validMID(mid string) bool {
+// ValidMID reports whether mid is a usable message ID: 1 to 12 letters,
+// digits, underscores or hyphens. Such an ID is also a safe file name.
+func ValidMID(mid string) bool {
 	if mid == "" || len(mid) > MaxMIDLen {
 		return false
 	}
@@ -121,7 +123,7 @@ func validMID(mid string) bool {
 // Validate checks that the message can be formatted and sent.
 func (m *Message) Validate() error {
 	switch {
-	case !validMID(m.MID):
+	case !ValidMID(m.MID):
 		return fmt.Errorf("%w: message ID %q", ErrInvalid, m.MID)
 	case m.From == "":
 		return fmt.Errorf("%w: no From address", ErrInvalid)
@@ -246,7 +248,7 @@ func Parse(raw []byte) (*Message, error) {
 		Subject: word(h.Get("Subject")),
 		Mbo:     h.Get("Mbo"),
 	}
-	if !validMID(m.MID) {
+	if !ValidMID(m.MID) {
 		return nil, fmt.Errorf("%w: message ID %q", ErrInvalid, m.MID)
 	}
 	if d, err := time.Parse(DateLayout, h.Get("Date")); err == nil {

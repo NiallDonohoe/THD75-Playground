@@ -106,7 +106,7 @@ func parseProposal(line string) (p Proposal, code byte, err error) {
 	if code != 'C' {
 		return p, code, nil
 	}
-	if len(f) != 5 || (f[0] != "EM" && f[0] != "CM") || !validMID(p.MID) {
+	if len(f) != 5 || (f[0] != "EM" && f[0] != "CM") || !ValidMID(p.MID) {
 		return p, code, fmt.Errorf("%w: proposal %q", ErrProtocol, line)
 	}
 	if p.Size, err = strconv.Atoi(f[2]); err != nil || p.Size < 0 {
@@ -178,8 +178,9 @@ func parseAnswers(line string, n int) (answers []byte, offsets []int, err error)
 
 // writeBlocks sends one message's compressed data, from offset: an SOH
 // header (title, offset), STX blocks of at most maxBlockData bytes, and EOT
-// with a checksum that makes the data bytes sum to zero.
-func writeBlocks(w io.Writer, title string, offset int, data []byte) error {
+// with a checksum that makes the data bytes sum to zero. Each block is
+// flushed as it goes, and progress, if set, gets the bytes sent so far.
+func writeBlocks(w io.Writer, title string, offset int, data []byte, progress func(done int)) error {
 	title = mime.QEncoding.Encode("utf-8", title)
 	if title == "" {
 		title = "No subject"
@@ -204,6 +205,12 @@ func writeBlocks(w io.Writer, title string, offset int, data []byte) error {
 			sum += c
 		}
 		rest = rest[k:]
+		if err := bw.Flush(); err != nil {
+			return err
+		}
+		if progress != nil {
+			progress(len(data) - len(rest))
+		}
 	}
 	bw.Write([]byte{eot, -sum})
 	return bw.Flush()
@@ -211,8 +218,8 @@ func writeBlocks(w io.Writer, title string, offset int, data []byte) error {
 
 // readBlocks reads one message's compressed data, which must be exactly
 // size bytes from offset 0. A '*' where SOH should be is a remote error
-// line.
-func readBlocks(r *bufio.Reader, size int) (title string, data []byte, err error) {
+// line. progress, if set, gets the bytes received so far after each block.
+func readBlocks(r *bufio.Reader, size int, progress func(done int)) (title string, data []byte, err error) {
 	c, err := r.ReadByte()
 	if err != nil {
 		return "", nil, err
@@ -272,6 +279,9 @@ func readBlocks(r *bufio.Reader, size int) (title string, data []byte, err error
 			}
 			for _, c := range data[start:] {
 				sum += c
+			}
+			if progress != nil {
+				progress(len(data))
 			}
 		case eot:
 			c, err := r.ReadByte()

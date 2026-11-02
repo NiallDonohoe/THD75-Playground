@@ -1,4 +1,4 @@
-# 0010 — Our own Winlink stack: LZHUF, B2F and AX.25 connected mode
+# 0013 — Our own Winlink stack: LZHUF, B2F and AX.25 connected mode
 
 Date: 2026-11-02 · Status: accepted
 

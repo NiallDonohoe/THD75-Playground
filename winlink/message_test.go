@@ -172,7 +172,7 @@ func TestNewMID(t *testing.T) {
 	seen := map[string]bool{}
 	for i := 0; i < 1000; i++ {
 		mid := NewMID()
-		if len(mid) != 12 || !validMID(mid) || strings.ToUpper(mid) != mid || seen[mid] {
+		if len(mid) != 12 || !ValidMID(mid) || strings.ToUpper(mid) != mid || seen[mid] {
 			t.Fatalf("NewMID() = %q", mid)
 		}
 		seen[mid] = true
@@ -189,7 +189,7 @@ func FuzzParse(f *testing.F) {
 		if err != nil {
 			return
 		}
-		if !validMID(m.MID) {
+		if !ValidMID(m.MID) {
 			t.Errorf("parsed with MID %q", m.MID)
 		}
 	})

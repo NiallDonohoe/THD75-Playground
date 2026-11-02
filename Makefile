@@ -1,13 +1,14 @@
 GO ?= go
 BIN := bin
 
-.PHONY: build test test-nocgo test-web test-ft8-reference test-hardware vet mock aprs-demo web app clean
+.PHONY: build test test-nocgo test-web test-ft8-reference test-hardware vet mock aprs-demo winlink-demo web app clean
 
 ## build: build the binaries into bin/ (d75scope arrives in M1)
 build:
 	$(GO) build -o $(BIN)/d75probe ./cmd/d75probe
 	$(GO) build -o $(BIN)/d75aprs ./cmd/d75aprs
 	$(GO) build -o $(BIN)/d75ft8 ./cmd/d75ft8
+	$(GO) build -o $(BIN)/d75winlink ./cmd/d75winlink
 
 ## test: all tests, with and without cgo (no radio needed)
 test: vet test-nocgo test-web
@@ -16,9 +17,9 @@ test: vet test-nocgo test-web
 test-nocgo:
 	CGO_ENABLED=0 $(GO) test ./...
 
-## test-web: the page's map maths, with Node's built-in runner (skipped without Node)
+## test-web: the pages' pure helpers, with Node's built-in runner (skipped without Node)
 test-web:
-	@if command -v node >/dev/null; then node --test web/aprs/*.test.mjs; else echo "test-web: no node, skipped"; fi
+	@if command -v node >/dev/null; then node --test web/aprs/*.test.mjs web/winlink/*.test.mjs; else echo "test-web: no node, skipped"; fi
 
 ## test-ft8-reference: decode recordings that have WSJT-X's decodes alongside
 ## (FT8_REFERENCE_DIR, default testdata/ft8; skipped when there are none)
@@ -40,6 +41,10 @@ mock: build
 ## aprs-demo: run d75aprs on made-up traffic; open http://127.0.0.1:8076/
 aprs-demo: build
 	$(BIN)/d75aprs --demo
+
+## winlink-demo: run d75winlink against a fake Winlink server; open http://127.0.0.1:8078/
+winlink-demo: build
+	$(BIN)/d75winlink --demo
 
 web:
 	@echo "web: the front end arrives in M1"

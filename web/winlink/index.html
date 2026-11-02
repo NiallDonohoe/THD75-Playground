@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>d75winlink</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <header class="bar">
+    <div class="brand">d75winlink <span id="mycall" class="call"></span></div>
+    <span id="demo-badge" class="badge demo" hidden title="A fake Winlink server with made-up mail; nothing leaves this Mac">Demo</span>
+    <span id="tx-badge" class="badge tx-off" title="RF sessions arrive in milestone W4">RF transmit off</span>
+    <span id="conn" class="conn" role="status">connecting…</span>
+  </header>
+
+  <main class="mail">
+    <nav class="folders" aria-label="Folders">
+      <button id="compose-btn" class="primary">Compose</button>
+      <ul>
+        <li><button class="folder" data-folder="in">Inbox <span class="count" data-count="unread"></span></button></li>
+        <li><button class="folder" data-folder="out">Outbox <span class="count" data-count="out"></span></button></li>
+        <li><button class="folder" data-folder="sent">Sent</button></li>
+        <li><button class="folder" data-folder="archive">Archive</button></li>
+      </ul>
+
+      <section class="connect" aria-labelledby="connect-h">
+        <h3 id="connect-h">Session</h3>
+        <label for="route">Route</label>
+        <select id="route"></select>
+        <div class="connect-buttons">
+          <button id="connect-btn" class="primary">Connect</button>
+          <button id="stop-btn" disabled>Stop</button>
+        </div>
+        <p id="session-state" class="session-state" role="status"></p>
+        <p id="outbox-note" class="note"></p>
+      </section>
+    </nav>
+
+    <section class="list-wrap" aria-labelledby="list-h">
+      <h2 id="list-h" class="list-h">Inbox</h2>
+      <ul id="list" class="list"></ul>
+      <p id="list-empty" class="empty" hidden></p>
+    </section>
+
+    <section id="pane" class="pane" aria-live="polite">
+      <div id="pane-empty" class="pane-empty">
+        <p>Select a message, or compose one.</p>
+      </div>
+
+      <article id="view" hidden>
+        <div class="view-actions">
+          <button id="reply-btn">Reply</button>
+          <button id="archive-btn">Archive</button>
+          <button id="unarchive-btn">Move to Inbox</button>
+          <button id="delete-btn" class="danger">Delete</button>
+        </div>
+        <h2 id="view-subject" class="view-subject"></h2>
+        <dl id="view-facts" class="facts"></dl>
+        <ul id="view-files" class="files"></ul>
+        <pre id="view-body" class="body"></pre>
+      </article>
+
+      <form id="compose" class="compose" hidden novalidate>
+        <div class="compose-head">
+          <h2>New message</h2>
+          <button id="c-queue" type="submit" class="primary">Put in Outbox</button>
+          <button id="c-discard" type="button">Discard</button>
+        </div>
+        <label for="c-to">To</label>
+        <input id="c-to" type="text" autocomplete="off" spellcheck="false" placeholder="Callsigns or email addresses, separated by commas">
+        <label for="c-cc">Cc</label>
+        <input id="c-cc" type="text" autocomplete="off" spellcheck="false">
+        <label for="c-subject">Subject</label>
+        <input id="c-subject" type="text" maxlength="120">
+        <label for="c-body">Message</label>
+        <textarea id="c-body" rows="14"></textarea>
+        <div class="attach">
+          <label class="button" for="c-files">Attach files…</label>
+          <input id="c-files" type="file" multiple hidden>
+          <ul id="c-filelist" class="files"></ul>
+        </div>
+        <p id="c-estimate" class="estimate" role="status"></p>
+        <ul id="c-notes" class="notes"></ul>
+        <p class="note draft-note">Drafts stay in this browser until you queue or discard them.</p>
+      </form>
+    </section>
+  </main>
+
+  <section class="session" aria-labelledby="log-h">
+    <div class="session-head">
+      <h3 id="log-h">Session log</h3>
+      <div id="progress" class="progress" hidden>
+        <span id="progress-label"></span>
+        <progress id="progress-bar" max="1" value="0"></progress>
+      </div>
+      <button id="log-toggle" class="link" aria-expanded="true">Hide</button>
+    </div>
+    <ol id="log" class="log"></ol>
+  </section>
+</body>
+</html>

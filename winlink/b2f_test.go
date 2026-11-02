@@ -94,10 +94,10 @@ func TestBlocksRoundTrip(t *testing.T) {
 	for _, size := range []int{6, 250, 251, 500, 1234} {
 		data := bytes.Repeat([]byte{0xa5, 0x01, 0xfe}, size)[:size]
 		var buf bytes.Buffer
-		if err := writeBlocks(&buf, "Grüße", 0, data); err != nil {
+		if err := writeBlocks(&buf, "Grüße", 0, data, nil); err != nil {
 			t.Fatal(err)
 		}
-		title, got, err := readBlocks(bufio.NewReader(&buf), size)
+		title, got, err := readBlocks(bufio.NewReader(&buf), size, nil)
 		if err != nil || title != "Grüße" || !bytes.Equal(got, data) {
 			t.Errorf("size %d: title %q, %d bytes, %v", size, title, len(got), err)
 		}
@@ -113,7 +113,7 @@ func TestReadBlocks(t *testing.T) {
 	// An STX length of 0 means 256 bytes.
 	stream := append(append([]byte{}, header...), block(256, 1)...)
 	stream = append(stream, eot, 0)
-	if _, got, err := readBlocks(bufio.NewReader(bytes.NewReader(stream)), 256); err != nil || len(got) != 256 {
+	if _, got, err := readBlocks(bufio.NewReader(bytes.NewReader(stream)), 256, nil); err != nil || len(got) != 256 {
 		t.Errorf("256-byte block: %d bytes, %v", len(got), err)
 	}
 
@@ -125,11 +125,11 @@ func TestReadBlocks(t *testing.T) {
 		"junk":         append(append([]byte{}, header...), 'x'),
 	}
 	for name, s := range bad {
-		if _, _, err := readBlocks(bufio.NewReader(bytes.NewReader(s)), 4); !errors.Is(err, ErrProtocol) {
+		if _, _, err := readBlocks(bufio.NewReader(bytes.NewReader(s)), 4, nil); !errors.Is(err, ErrProtocol) {
 			t.Errorf("%s: %v, want ErrProtocol", name, err)
 		}
 	}
-	_, _, err := readBlocks(bufio.NewReader(strings.NewReader("*** Message too large\r")), 4)
+	_, _, err := readBlocks(bufio.NewReader(strings.NewReader("*** Message too large\r")), 4, nil)
 	var re *RemoteError
 	if !errors.As(err, &re) || re.Text != "Message too large" {
 		t.Errorf("remote error: %v", err)
@@ -150,13 +150,13 @@ func TestReadLine(t *testing.T) {
 
 func FuzzReadBlocks(f *testing.F) {
 	var buf bytes.Buffer
-	writeBlocks(&buf, "t", 0, []byte("abcdefgh"))
+	writeBlocks(&buf, "t", 0, []byte("abcdefgh"), nil)
 	f.Add(buf.Bytes(), 8)
 	f.Fuzz(func(t *testing.T, b []byte, size int) {
 		if size < 0 || size > 1<<16 {
 			return
 		}
-		_, data, err := readBlocks(bufio.NewReader(bytes.NewReader(b)), size)
+		_, data, err := readBlocks(bufio.NewReader(bytes.NewReader(b)), size, nil)
 		if err == nil && len(data) != size {
 			t.Errorf("returned %d bytes for size %d", len(data), size)
 		}

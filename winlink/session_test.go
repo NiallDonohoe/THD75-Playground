@@ -46,7 +46,7 @@ func newMailbox(out ...*winlink.Message) *memMailbox {
 
 func (mb *memMailbox) Outbox() []winlink.Outgoing { return mb.out }
 func (mb *memMailbox) Have(mid string) bool       { return mb.have[mid] }
-func (mb *memMailbox) Received(raw []byte, m *winlink.Message) error {
+func (mb *memMailbox) Received(mid string, raw []byte, m *winlink.Message) error {
 	mb.mu.Lock()
 	defer mb.mu.Unlock()
 	mb.received = append(mb.received, m)

@@ -1,4 +1,4 @@
-# 0009 — d75winlink: a standalone program, Telnet first, RF transmit as an option
+# 0012 — d75winlink: a standalone program, Telnet first, RF transmit as an option
 
 Date: 2026-11-02 · Status: accepted
 

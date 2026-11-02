@@ -1,5 +1,33 @@
 # Changelog
 
+## W1 — d75winlink page, demo mode (2026-11-02, waiting for the owner's check)
+
+- `d75winlink --demo`: a page on localhost with Inbox, Outbox, Sent and
+  Archive; reading with attachments as downloads; compose and reply with
+  size and airtime estimates, a check for characters Winlink cannot carry,
+  and notes on internet replies and RF rules; drafts kept in the browser;
+  Connect and Stop with a live session log and a progress bar per message.
+  Runs only in demo mode until W2.
+- `winlinkapp`: the mailbox on disk (one `.b2f` file per message, moved
+  between folders by rename, read state in `read.json`), the session runner
+  with a 2-minute idle limit and Stop, the session log on disk, compose
+  limits (120 kB of attachments, 150 kB a message) and the event stream.
+- `winlinkweb`: the page's server, wire format in docs/WINLINK_PROTOCOL.md.
+- `winlinkdemo`: the fake CMS with three messages waiting, a reply to
+  everything sent (on the next connection) and a link slowed to 600 bytes
+  a second.
+- `winlink`: progress reports per block, `ValidMID` exported, and
+  `Mailbox.Received` takes the message ID from the proposal, so a message
+  that will not parse is still stored under its ID. The fake CMS has an
+  `OnReceive` hook.
+- `localweb`: taken unchanged from the d75sat branch, so both branches
+  share one guard.
+- `web/winlink`: plain JavaScript; the helpers are tested with `node --test`.
+- Decisions renumbered 0012–0013, as d75sat's branch already uses
+  0009–0011.
+- Makefile: builds d75winlink; `make winlink-demo`; `make test-web` runs the
+  Winlink page's tests too.
+
 ## W0 — d75winlink core (2026-11-02)
 
 - `lzhuf`: LZHUF compression both ways, with B2F's CRC-16/XMODEM and

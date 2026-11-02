@@ -34,6 +34,20 @@ make build
 ./bin/d75ft8 encode --freq 1500 "CQ YOURCALL IO63"   # writes ft8.wav
 ```
 
+A fourth program, `d75winlink`, sends and receives Winlink email: compose,
+a mailbox, and sessions with Winlink over the internet (Telnet) and later
+over RF through the radio's KISS TNC, with RF transmit off by default. See
+[docs/WINLINK.md](docs/WINLINK.md). So far its page runs against a fake
+Winlink server in the program, with made-up mail:
+
+```sh
+make build
+./bin/d75winlink --demo --call YOURCALL
+# then open http://127.0.0.1:8078/ in Chrome
+```
+
+What to check is in [docs/CHECKLIST_W1.md](docs/CHECKLIST_W1.md).
+
 ## Requirements
 
 - An Apple Silicon Mac (Linux compiles but is untested), Go 1.27, and the

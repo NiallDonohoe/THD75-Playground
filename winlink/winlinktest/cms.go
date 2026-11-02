@@ -46,6 +46,9 @@ type CMS struct {
 
 	// Log, if set, gets every line the fake sends and receives.
 	Log func(fromServer bool, line string)
+	// OnReceive, if set, is called with each message a station sends, after
+	// it is stored. It may call Queue.
+	OnReceive func(Mail)
 
 	mu       sync.Mutex
 	waiting  map[string][]Mail
@@ -268,9 +271,13 @@ func (x *conn) clientTurn(first string, turn int) (quit, done bool, err error) {
 				if err == nil {
 					subject = m.Subject
 				}
+				mail := Mail{MID: p.mid, Subject: subject, Raw: raw, From: x.call}
 				x.mu.Lock()
-				x.received = append(x.received, Mail{MID: p.mid, Subject: subject, Raw: raw, From: x.call})
+				x.received = append(x.received, mail)
 				x.mu.Unlock()
+				if x.OnReceive != nil {
+					x.OnReceive(mail)
+				}
 			}
 			return false, false, nil
 		default:

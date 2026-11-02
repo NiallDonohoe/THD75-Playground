@@ -17,10 +17,11 @@ type Mailbox interface {
 	// Have reports whether a message ID is already in the mailbox, so a
 	// proposal of it is rejected rather than downloaded again.
 	Have(mid string) bool
-	// Received stores a message that arrived: raw is its B2F form, and m
-	// is nil when it could not be parsed (it is kept all the same). An
-	// error ends the session before the peer is told it arrived.
-	Received(raw []byte, m *Message) error
+	// Received stores a message that arrived: mid is its ID from the
+	// proposal, raw its B2F form, and m nil when it could not be parsed (it
+	// is kept all the same). An error ends the session before the peer is
+	// told it arrived.
+	Received(mid string, raw []byte, m *Message) error
 	// Sent records that the peer took a message, or rejected it because
 	// it already had it.
 	Sent(mid string, rejected bool)
@@ -52,6 +53,24 @@ type Session struct {
 	// Log, if set, gets every protocol line, sent or received, and a line
 	// for each message's blocks. The secure login answer is masked.
 	Log func(sent bool, line string)
+	// Progress, if set, is called as each block of a message goes or
+	// arrives.
+	Progress func(Progress)
+}
+
+// Progress is how far one message's transfer has got, in compressed bytes.
+type Progress struct {
+	MID     string `json:"mid"`
+	Sending bool   `json:"sending"`
+	Done    int    `json:"done"`
+	Total   int    `json:"total"`
+}
+
+func (x *session) progress(mid string, sending bool, total int) func(int) {
+	if x.Progress == nil {
+		return nil
+	}
+	return func(done int) { x.Progress(Progress{MID: mid, Sending: sending, Done: done, Total: total}) }
 }
 
 // DefaultMaxReceive is Session.MaxReceive's default.
@@ -257,7 +276,7 @@ func (x *session) propose(batch []offer) ([]string, error) {
 				return nil, fmt.Errorf("%w: offset %d for %s, which is %d bytes", ErrProtocol, offsets[i], o.MID, len(o.compressed))
 			}
 			x.log(true, fmt.Sprintf("(sending %s: %d bytes from offset %d)", o.MID, len(o.compressed), offsets[i]))
-			if err := writeBlocks(x.w, o.Subject, offsets[i], o.compressed); err != nil {
+			if err := writeBlocks(x.w, o.Subject, offsets[i], o.compressed, x.progress(o.MID, true, len(o.compressed))); err != nil {
 				return nil, err
 			}
 			sent = append(sent, o.MID)
@@ -340,7 +359,7 @@ func (x *session) receive(props []Proposal, codes []byte) error {
 		if answers[i] != Accept {
 			continue
 		}
-		_, data, err := readBlocks(x.r, p.CompressedSize)
+		_, data, err := readBlocks(x.r, p.CompressedSize, x.progress(p.MID, false, p.CompressedSize))
 		if err != nil {
 			return err
 		}
@@ -357,7 +376,7 @@ func (x *session) receive(props []Proposal, codes []byte) error {
 			x.log(false, fmt.Sprintf("(%s does not parse: %v; kept as received)", p.MID, err))
 			m = nil
 		}
-		if err := x.Mailbox.Received(raw, m); err != nil {
+		if err := x.Mailbox.Received(p.MID, raw, m); err != nil {
 			return fmt.Errorf("storing %s: %w", p.MID, err)
 		}
 		x.stats.Received = append(x.stats.Received, p.MID)
