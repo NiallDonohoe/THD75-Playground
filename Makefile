@@ -17,11 +17,11 @@ test: vet test-nocgo test-web
 test-nocgo:
 	CGO_ENABLED=0 $(GO) test ./...
 
-## test-## sat-demo: run d75sat on made-up satellites; open http://127.0.0.1:8078/
+## sat-demo: run d75sat on made-up satellites; open http://127.0.0.1:8078/
 sat-demo: build
 	$(BIN)/d75sat --demo
 
-web: the pages' map and sky maths, with Node's built-in runner (skipped without Node)
+## test-web: the pages' map and sky maths, with Node's built-in runner (skipped without Node)
 test-web:
 	@if command -v node >/dev/null; then node --test web/*/*.test.mjs; else echo "test-web: no node, skipped"; fi
 
