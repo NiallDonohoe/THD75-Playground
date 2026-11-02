@@ -99,9 +99,12 @@ To go back to d75scope: leave KISS mode and set Menu 983 to Bluetooth.
 - Folders `in`, `out`, `sent` and `archive` under
   `~/Library/Application Support/d75winlink/mailbox/CALL/`. Drafts are kept
   in the page until the owner queues them.
-- A message moves from `out` to `sent` only after the server has accepted
-  it and the session has ended cleanly. A session that drops leaves it in
-  `out`, to be offered again (resumed, if the server allows).
+- A message moves from `out` to `sent` once the server has accepted it,
+  its blocks have gone, and the server's next protocol line has come back
+  (not an error), as Pat does. A session that drops before then leaves it
+  in `out`, to be offered again; if the server had it after all, it answers
+  "already have" and the message moves to `sent` then. A message the server
+  defers stays in `out`.
 
 ## Messages
 
@@ -111,7 +114,11 @@ To go back to d75scope: leave KISS mode and set Menu 983 to Bluetooth.
 - **Headers**: `Mid`, `Date` (UTC), `Type: Private`, `From`, `To`, `Cc`,
   `Subject`, `Mbo` (our callsign), `Body` and one `File` per attachment.
 - **Message ID**: 12 characters of upper-case letters and digits, random.
-- **Body**: plain text, lines ending CRLF.
+- **Body**: plain text in ISO-8859-1 (what Winlink delivers to internet
+  mail), lines ending CRLF and split at 1000 bytes. Characters outside
+  ISO-8859-1 are refused on the page. Received bodies are read in the
+  charset their `Content-Type` names, ISO-8859-1 when it names none.
+- **Subject and attachment names**: RFC 2047 encoded words when not ASCII.
 - **Attachments**: added on the page, at most 120 kB in all per message
   (Winlink's own limit may be lower; P06). The page shows each message's
   compressed size and its estimated airtime at 1200 and 9600 bps.
@@ -138,25 +145,30 @@ byte stream (TCP or an AX.25 link):
    both sides have nothing to send.
 4. **Quit.** `FQ`, then the connection closes.
 
+The client takes the first turn. A turn offers at most 5 messages; the rest
+wait for our next turn. Proposals we cannot take (another proposal type, a
+message ID repeated in the batch, or over 1 MB) are deferred, so they stay
+on the server. A proposal for a message ID already in the mailbox is
+rejected. A `***` line from the server ends the session with its text.
+
 Every line sent and received goes to the session log on the page (with the
 challenge answer shown as `;PR: ********`), and to a session log on disk.
 
 ### Protocol questions
 
-These are protocol details this spec states from memory. Each is checked
-against the published Winlink and FBB documentation, and Pat's source as a
-reading reference, before W0's tests are written against it, and confirmed
-on the real CMS in W2.
+These were stated from memory when the spec was written, then checked in W0
+against Pat's source (wl2k-go, MIT, read as a reference; no code copied).
+Each is confirmed on the real CMS in W2.
 
-| ID | Question |
-| --- | --- |
-| P01 | The secure login: the salt bytes, the hash (MD5 of challenge, password and salt) and how the answer is formed from it. Needs a known challenge, password and answer as a test vector. |
-| P02 | The CMS Telnet login: host and port (expected `cms.winlink.org:8772`), the exact prompts, and whether a TLS port is offered. |
-| P03 | The B2 compressed payload: the CRC-16 and length header ahead of the LZHUF data, and the CRC's polynomial. |
-| P04 | The proposal checksum after `F>`, and the block framing (SOH header with title and offset, STX data blocks of at most 250 bytes, EOT checksum). |
-| P05 | The SID flags a minimal client must advertise, and what the CMS does with ones it does not know. |
-| P06 | Winlink's per-message size limit, on Telnet and on RF gateways. |
-| P07 | Whether a new account can be set up without another Winlink client, and how the password is set. |
+| ID | Question | Answer (W0) | Status |
+| --- | --- | --- | --- |
+| P01 | The secure login | MD5 of challenge, password and a fixed 64-byte salt (from paclink-unix); bytes 0–3 little-endian with the top two bits cleared, as 8 decimal digits. Pat's two vectors pass. | answered; W2 confirms |
+| P02 | The CMS Telnet login | `server.winlink.org:8772`; prompts start "Callsign" and "Password", each ended by CR; the password is `CMSTelnet` for everyone; the target is `wl2k`. TLS not checked. | answered; W2 confirms, and checks for TLS |
+| P03 | The B2 compressed payload | CRC-16/XMODEM (polynomial 0x1021, initial 0) of the length and the coded bits, little-endian; then the length, 4 bytes little-endian; then LZHUF with a **2048**-byte window and 60-byte lookahead (not 4096). Our encoder matches a reference output byte for byte. | answered |
+| P04 | Proposal checksum and blocks | `F> XX`: the negated sum of every proposal byte, CR included, in hex. SOH, header length, title (RFC 2047 if not ASCII, at most 80 bytes), NUL, offset, NUL; STX, length (0 means 256), data; EOT and the negated sum of the data. Pat sends 125-byte blocks, paclink-unix 250; we send 250. | answered |
+| P05 | SID flags | We send `B2FHM$`, as Pat does. The client needs `B2F` in the server's SID. Answers `+-=` and the letter forms `YNRLHA`, and `!` or `A` with an offset. | answered |
+| P06 | Winlink's per-message size limit | Not in the references. | open, W2 |
+| P07 | Setting up an account | Pat's tests show a welcome `;PM:` from SERVICE on a new account's first connection, which suggests connecting creates it. Unconfirmed. | open, W2 |
 
 ## AX.25 connected mode (W3)
 
@@ -193,9 +205,9 @@ itself and against recorded frame sequences.
 
 | Package | Role |
 | --- | --- |
-| `lzhuf` | LZHUF compression and decompression (LZSS plus adaptive Huffman), as FBB and B2F use it. Pure Go, no I/O. |
+| `lzhuf` | LZHUF compression and decompression (LZSS over a 2048-byte window plus adaptive Huffman), as FBB and B2F use it, with B2F's CRC-16 header. Pure Go, no I/O. |
 | `winlink` | Messages (parse and format, IDs, addresses), B2F (SIDs, secure login, proposals, blocks) and the session over an `io.ReadWriter`; the Telnet dialler. |
-| `winlink/winlinktest` | A fake CMS that speaks B2F, for tests and `--demo`. |
+| `winlink/winlinktest` | A fake CMS that speaks the server side of B2F, for tests and `--demo`. Its protocol code is written separately from the client's, so a misreading shared by both would have to be made twice. |
 | `winlinkapp` | The mailbox on disk, the session runner and the event stream. |
 | `winlinkweb` | HTTP server: localhost guard, embedded page, server-sent events, compose and connect endpoints. |
 | `web/winlink` | The page, in plain JavaScript like `web/aprs`. |

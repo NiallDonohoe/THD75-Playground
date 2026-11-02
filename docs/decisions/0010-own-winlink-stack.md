@@ -12,8 +12,11 @@ library.
 
 Scope:
 
-- **`lzhuf`**: LZHUF as FBB uses it (a 4096-byte LZSS window with adaptive
-  Huffman coding), both ways.
+- **`lzhuf`**: LZHUF as FBB uses it (a 2048-byte LZSS window with adaptive
+  Huffman coding), both ways. Written from Okumura and Yoshizaki's
+  LZHUF.C, whose encoder silently cuts Huffman codes over 16 bits short;
+  ours writes them whole, which every decoder that walks the tree reads.
+  Below 17 bits the output is identical.
 - **`winlink`**: the Winlink message format; B2F (SIDs, secure login,
   proposals, accept/reject/defer, block framing, checksums, resume); the
   session over any byte stream; the Telnet dialler.

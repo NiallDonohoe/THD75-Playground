@@ -1,5 +1,31 @@
 # Changelog
 
+## W0 — d75winlink core (2026-11-02)
+
+- `lzhuf`: LZHUF compression both ways, with B2F's CRC-16/XMODEM and
+  length header. Matches a reference implementation's output byte for byte
+  (the Gettysburg fixture and four short vectors from wl2k-go). Writes
+  Huffman codes over 16 bits whole, where LZHUF.C cut them short. Refuses
+  truncated data, bad CRCs and stated lengths over the caller's limit.
+- `winlink`: messages (addresses, IDs, headers, ISO-8859-1 bodies split at
+  1000 bytes, encoded-word subjects, attachments) both ways; B2F (SIDs, the
+  secure login, proposals and their checksum, answers including offsets,
+  SOH/STX/EOT blocks); a client session that offers at most 5 messages a
+  turn, defers what it cannot take, rejects what it already has, holds
+  back what would pass a per-session size cap, confirms sent messages only
+  on the server's next line, and never logs the password or its hash;
+  the CMS Telnet login and `DialCMS`.
+- `winlink/winlinktest`: a fake CMS with the server side written
+  separately from the client: secure login checking, queued mail, and
+  misbehaviour on request (already have, defer, drop mid-transfer, garbage,
+  login failure).
+- Tests: Pat's secure login, proposal and answer vectors; whole sessions
+  against the fake over TCP; fuzzing of the decompressor, message parser
+  and block reader.
+- Docs: protocol questions P01–P05 answered from Pat's source (the LZHUF
+  window is 2048 bytes, not 4096 as the spec first said); a sent message
+  moves to `sent` on the server's next line, as Pat does.
+
 ## F0 — d75ft8 decoder core (2026-10-30)
 
 - `ft8`: FT8 in pure Go. Packs and unpacks 77-bit messages (standard calls

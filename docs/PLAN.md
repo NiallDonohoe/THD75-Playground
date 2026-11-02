@@ -58,7 +58,7 @@ with d75aprs's A2.
 
 | Milestone | State |
 | --- | --- |
-| W0 Core (`lzhuf`, `winlink`, fake CMS) | Not started. |
+| W0 Core (`lzhuf`, `winlink`, fake CMS) | Built and green; P01–P05 answered from Pat's source. No owner check needed (no radio, no network). |
 | W1 Page, demo mode | Not started. |
 | W2 Telnet to the CMS | Not started. |
 | W3 KISS and AX.25, receive only | Not started. |
