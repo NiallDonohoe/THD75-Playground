@@ -39,7 +39,7 @@ func main() {
 func run() error {
 	var (
 		demoMode = flag.Bool("demo", false, "run against a fake Winlink server with made-up mail (nothing leaves this Mac)")
-		addr     = flag.String("addr", "127.0.0.1:8078", "address for the page (loopback only)")
+		addr     = flag.String("addr", "127.0.0.1:8079", "address for the page (loopback only)")
 		call     = flag.String("call", "", "your Winlink account's callsign, such as EI2ABC (demo default N0CALL)")
 		locator  = flag.String("locator", "", "your Maidenhead locator, sent in the session greeting (optional)")
 		dir      = flag.String("dir", "", "where the mailbox lives (default: ~/Library/Application Support/d75winlink)")

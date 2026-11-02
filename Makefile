@@ -47,7 +47,7 @@ mock: build
 aprs-demo: build
 	$(BIN)/d75aprs --demo
 
-## winlink-demo: run d75winlink against a fake Winlink server; open http://127.0.0.1:8078/
+## winlink-demo: run d75winlink against a fake Winlink server; open http://127.0.0.1:8079/
 winlink-demo: build
 	$(BIN)/d75winlink --demo
 

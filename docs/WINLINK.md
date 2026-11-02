@@ -206,7 +206,7 @@ itself and against recorded frame sequences.
 - **Session**: a live log, a progress bar per message, and Stop.
 - The wire format between the page and the server is in
   [WINLINK_PROTOCOL.md](WINLINK_PROTOCOL.md). The address is
-  `http://127.0.0.1:8078/`.
+  `http://127.0.0.1:8079/` (d75aprs has 8076, d75sat 8078).
 - **Airtime** is a rough figure for the owner: compressed bytes at about
   70 a second for 1200 bps packet and 400 for 9600, once AX.25 headers,
   acks and turnarounds are counted. W4 measures the real figure (W06).
@@ -222,7 +222,7 @@ itself and against recorded frame sequences.
 | `winlinkapp` | The mailbox on disk, the session runner and the event stream. |
 | `winlinkweb` | HTTP server: the shared `localweb` guard, embedded page, server-sent events, the mailbox, compose and session endpoints. |
 | `winlinkdemo` | `--demo`: the fake CMS on a loopback port with three messages waiting, a reply to everything sent (held until the next connection), and a link slowed to 600 bytes a second. |
-| `localweb` | Shared with d75sat (the same file as on its branch): the loopback-only listener and the guard. |
+| `localweb` | Shared with d75aprs and d75sat: the loopback-only listener and the guard. |
 | `web/winlink` | The page, in plain JavaScript like `web/aprs`. |
 | `kiss` | (W3) KISS framing: a receive-only `Reader` and a `Transmitter` that exists only when RF transmit is on. Shared with d75aprs, whose A2 also needs it; whichever track reaches it first builds it, to this spec and APRS.md's. |
 | `ax25` | (W3) AX.25 frames and connected mode. The `aprs` package keeps its own UI-frame code for now; moving it onto `ax25` is a later tidy-up. |

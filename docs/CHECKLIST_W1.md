@@ -14,7 +14,8 @@ make build
 
 Use your own callsign. The demo mailbox is kept apart from real mail, in
 `~/Library/Application Support/d75winlink/demo/`. Delete that folder to
-start the demo afresh. Then open http://127.0.0.1:8078/ in Chrome.
+start the demo afresh. Then open http://127.0.0.1:8079/ in Chrome (type
+the address; the page refuses requests that come from other sites).
 
 ## Check
 

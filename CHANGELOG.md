@@ -7,7 +7,8 @@
   size and airtime estimates, a check for characters Winlink cannot carry,
   and notes on internet replies and RF rules; drafts kept in the browser;
   Connect and Stop with a live session log and a progress bar per message.
-  Runs only in demo mode until W2.
+  Runs only in demo mode until W2. The page is on port 8079 (d75sat has
+  8078).
 - `winlinkapp`: the mailbox on disk (one `.b2f` file per message, moved
   between folders by rename, read state in `read.json`), the session runner
   with a 2-minute idle limit and Stop, the session log on disk, compose
