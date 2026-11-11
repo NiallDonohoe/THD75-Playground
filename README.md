@@ -169,4 +169,27 @@ rigctld-compatible port on localhost.
 
 MIT; see [LICENSE](LICENSE). The FT8 LDPC tables in `ft8/ldpc_tables.go`
 are generated from ft8_lib, whose MIT notice is in
-[ft8/LICENSE.ft8_lib](ft8/LICENSE.ft8_lib).
+[ft8/LICENSE.ft8_lib](ft8/LICENSE.ft8_lib). The LZHUF test fixtures in
+`lzhuf/testdata` come from wl2k-go, whose MIT notice is in
+[lzhuf/testdata/LICENSE.wl2k-go](lzhuf/testdata/LICENSE.wl2k-go).
+
+The MIT licence covers the code, not the data the programs fetch when they
+run. None of that data is included in this repository: `--demo` modes use
+made-up data.
+
+- Transmitter data from the [SatNOGS database](https://db.satnogs.org/) is
+  [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+- Map tiles are © [OpenStreetMap](https://www.openstreetmap.org/copyright)
+  contributors, under the Open Database License.
+- Station lookups come from [aprs.fi](https://aprs.fi/) under its API terms.
+- Orbital elements come from [CelesTrak](https://celestrak.org/).
+
+## Trademarks
+
+This is an independent hobby project. It is not affiliated with, endorsed by
+or supported by JVCKENWOOD Corporation, the Winlink Development Team or the
+Amateur Radio Safety Foundation, the WSJT-X developers, aprs.fi, CelesTrak or
+SatNOGS. Kenwood and TH-D75 are trademarks of JVCKENWOOD Corporation. APRS is
+a registered trademark of Bob Bruninga, WB4APR. Winlink is a trademark of the
+Amateur Radio Safety Foundation, Inc. Other names belong to their owners and
+are used only to say what the software works with.
