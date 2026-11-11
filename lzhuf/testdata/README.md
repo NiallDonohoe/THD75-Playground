@@ -9,3 +9,5 @@ Address, in the public domain.
 The short vectors in `lzhuf_test.go` ("\n", "foo", "bar" and the
 quick-brown-fox line) are from wl2k-go's `lzhuf_test.go`, under the same
 licence.
+
+wl2k-go's licence text is in [LICENSE.wl2k-go](LICENSE.wl2k-go).
