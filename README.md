@@ -14,7 +14,6 @@ This repository holds these programs, which share one radio and some packages:
 | `d75aprs` | APRS client: map, messages, beacons | A1 demo page built, awaiting check | [APRS](docs/APRS.md) |
 | `d75ft8` | FT8 decoder and encoder | F0 (WAV files) merged; live page is F1 | [FT8](docs/FT8.md) |
 | `d75sat` | Satellite passes, map, Doppler | S1 page built, awaiting check | [SAT](docs/SAT.md) |
-| `d75winlink` | Winlink email: compose, mailbox, sessions over Telnet and later RF | W1 demo page built, awaiting check | [WINLINK](docs/WINLINK.md) |
 
 **Status of d75scope: milestone M0.** The hardware probe (`d75probe`) is built and
 tested against a fake radio. Next it needs a run on the real radio
@@ -58,20 +57,6 @@ on real data from CelesTrak and SatNOGS or on made-up satellites:
 ```
 
 What to check is in [docs/CHECKLIST_S1.md](docs/CHECKLIST_S1.md).
-
-The fifth, `d75winlink`, sends and receives Winlink email: compose,
-a mailbox, and sessions with Winlink over the internet (Telnet) and later
-over RF through the radio's KISS TNC, with RF transmit off by default. See
-[docs/WINLINK.md](docs/WINLINK.md). So far its page runs against a fake
-Winlink server in the program, with made-up mail:
-
-```sh
-make build
-./bin/d75winlink --demo --call YOURCALL
-# then open http://127.0.0.1:8079/ in Chrome
-```
-
-What to check is in [docs/CHECKLIST_W1.md](docs/CHECKLIST_W1.md).
 
 ## Requirements
 
@@ -129,12 +114,10 @@ make test-hardware       # tests that need the radio
 make mock                # the probe against the fake radio
 make aprs-demo           # d75aprs on made-up traffic
 make sat-demo            # d75sat on made-up satellites
-make winlink-demo        # d75winlink against a fake Winlink server
 ```
 
 `d75sat` flags: `--demo`, `--speed`, `--offline` (cached data only),
-`--lat`/`--lon`, `--addr`, `--no-tiles`, `--tile-url`, `-v`. `d75winlink` flags:
-`--demo`, `--call`, `--locator`, `--dir`, `--demo-rate`, `--addr`, `-v`. The pages listen on
+`--lat`/`--lon`, `--addr`, `--no-tiles`, `--tile-url`, `-v`. The pages listen on
 loopback only and refuse requests from other sites.
 
 ### Layout
@@ -147,10 +130,9 @@ loopback only and refuse requests from other sites.
 | `aprs/`, `aprsapp/`, `aprsfi/`, `aprsweb/` | APRS parser and encoder, engine, aprs.fi lookups, server |
 | `ft8/` | FT8 packing, LDPC, synthesis and decoder |
 | `orbit/`, `satdata/`, `satapp/`, `satweb/`, `satdemo/` | SGP4 and passes, CelesTrak and SatNOGS, engine, server, demo catalogue |
-| `lzhuf/`, `winlink/`, `winlinkapp/`, `winlinkweb/`, `winlinkdemo/` | Winlink's compression, messages, B2F and the fake CMS; mailbox and sessions; server; demo |
 | `demo/` | Made-up APRS traffic |
 | `localweb/`, `tiles/` | Shared loopback listener and request guard; map tile proxy |
-| `web/` | Embedded pages: `aprs/`, `sat/`, `winlink/` and the shared `map/` |
+| `web/` | Embedded pages: `aprs/`, `sat/` and the shared `map/` |
 | `docs/`, `schema/` | Specs, protocols, checklists, decisions; the probe report schema |
 
 Per-change history is in [CHANGELOG.md](CHANGELOG.md).
@@ -169,9 +151,7 @@ rigctld-compatible port on localhost.
 
 MIT; see [LICENSE](LICENSE). The FT8 LDPC tables in `ft8/ldpc_tables.go`
 are generated from ft8_lib, whose MIT notice is in
-[ft8/LICENSE.ft8_lib](ft8/LICENSE.ft8_lib). The LZHUF test fixtures in
-`lzhuf/testdata` come from wl2k-go, whose MIT notice is in
-[lzhuf/testdata/LICENSE.wl2k-go](lzhuf/testdata/LICENSE.wl2k-go).
+[ft8/LICENSE.ft8_lib](ft8/LICENSE.ft8_lib).
 
 The MIT licence covers the code, not the data the programs fetch when they
 run. None of that data is included in this repository: `--demo` modes use
@@ -187,9 +167,8 @@ made-up data.
 ## Trademarks
 
 This is an independent hobby project. It is not affiliated with, endorsed by
-or supported by JVCKENWOOD Corporation, the Winlink Development Team or the
-Amateur Radio Safety Foundation, the WSJT-X developers, aprs.fi, CelesTrak or
-SatNOGS. Kenwood and TH-D75 are trademarks of JVCKENWOOD Corporation. APRS is
-a registered trademark of Bob Bruninga, WB4APR. Winlink is a trademark of the
-Amateur Radio Safety Foundation, Inc. Other names belong to their owners and
-are used only to say what the software works with.
+or supported by JVCKENWOOD Corporation, the WSJT-X developers, aprs.fi,
+CelesTrak or SatNOGS. Kenwood and TH-D75 are trademarks of JVCKENWOOD
+Corporation. APRS is a registered trademark of Bob Bruninga, WB4APR. Other
+names belong to their owners and are used only to say what the software
+works with.
